@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "musicservice"
+version = "0.1.0"
+description = ""
+authors = ["Andrey <ykt_andrey@mail.ru>"]
+packages = [{ include = "src", from = "." }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.1"
+pydantic-settings = "^2.3.4"
+pytest = "^8.3.2"
+pytest-asyncio = "^0.23.8"
+aiofiles = "^24.1.0"
+isort = "^5.13.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+server = "src.index:run_server"

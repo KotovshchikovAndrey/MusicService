@@ -1,0 +1,2 @@
+server:
+	poetry run start
