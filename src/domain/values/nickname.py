@@ -3,12 +3,12 @@ from domain.values.base import BaseValue
 
 
 @dataclass(frozen=True, slots=True)
-class FullName(BaseValue[str]):
+class Nickname(BaseValue[str]):
     _max_length = 70
 
     def validate(self) -> None:
         if not self.value:
-            raise ValueError("Fullname should not be an empty string")
+            raise ValueError("Nickname should not be an empty string")
 
         if len(self.value) > self._max_length:
-            raise ValueError(f"Too long fullname '{self.value}'")
+            raise ValueError(f"Too long nickname '{self.value}'")

@@ -1,4 +1,4 @@
-import typing as tp
+from typing import AsyncGenerator
 from dataclasses import dataclass, field
 
 from domain.dtos.artist import ArtistDto
@@ -18,4 +18,14 @@ class TrackDto(OidMixin):
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
-class PlayTrackDto(OidMixin): ...
+class ListenTrackDto(OidMixin):
+    start_byte: int = field(default=0)
+    end_byte: int | None = field(default=None)
+
+
+@dataclass(kw_only=True, slots=True)
+class AudioStreamDto:
+    stream: AsyncGenerator[bytes, None]
+    content_type: str
+    content_length: str
+    content_range: str

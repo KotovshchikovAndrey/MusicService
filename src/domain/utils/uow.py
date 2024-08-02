@@ -1,3 +1,4 @@
+from typing import Self
 from abc import ABC, abstractmethod
 
 from domain.repositories.album import AlbumRepository
@@ -10,10 +11,10 @@ class UnitOfWork(ABC):
     playlists: PlaylistRepository
     albums: AlbumRepository
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, *args, **kwargs):
+    async def __aexit__(self, *args, **kwargs) -> None:
         await self.rollback()
 
     @abstractmethod

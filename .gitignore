@@ -4,3 +4,5 @@ media
 __pycache__
 .pytest_cache
 .venv
+test.sql
+index.html

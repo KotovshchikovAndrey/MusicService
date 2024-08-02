@@ -1,9 +1,10 @@
 import uvicorn
-from config.app import create_app
+from config.app_factory import FastApiAppFactory
 from config.settings import settings
 
 
-app = create_app()
+app_factory = FastApiAppFactory()
+app = app_factory.create()
 
 
 def run_server() -> None:

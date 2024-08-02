@@ -5,4 +5,4 @@ from domain.dtos.base import OidMixin
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class ArtistDto(OidMixin):
-    fullname: str
+    nickname: str

@@ -1,5 +1,5 @@
-import typing as tp
+from typing import Protocol
 
 
-class BaseUseCase[TInput, TOutput](tp.Protocol):
+class BaseUseCase[TInput, TOutput](Protocol):
     async def execute(self, data: TInput) -> TOutput: ...

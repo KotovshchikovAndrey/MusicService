@@ -13,6 +13,10 @@ pytest = "^8.3.2"
 pytest-asyncio = "^0.23.8"
 aiofiles = "^24.1.0"
 isort = "^5.13.2"
+aioboto3 = "^13.1.1"
+sqlalchemy = "^2.0.31"
+alembic = "^1.13.2"
+asyncpg = "^0.29.0"
 
 
 [build-system]
@@ -21,4 +25,4 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-server = "src.index:run_server"
+start = "src.index:run_server"

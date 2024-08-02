@@ -1,11 +1,10 @@
 from datetime import UTC, datetime
 from dataclasses import dataclass, field
+from typing import Self, Type
 
-from domain.entities.artist import Artist
 from domain.entities.base import BaseEntity
 from domain.entities.track import Track
 
-from domain.exceptions.permission_denied import PermissionDeniedException
 from domain.values.cover_url import CoverUrl
 from domain.values.title import Title
 
@@ -17,30 +16,21 @@ class Album(BaseEntity):
     created_at: datetime = field(
         default_factory=lambda: datetime.now(UTC).replace(tzinfo=None)
     )
-    tracks: set[Track] = field(default_factory=set)
+    tracks: tuple[Track] = field(default_factory=tuple)
 
-    def set_title(self, title: str, my_oid: str) -> None:
-        if not self._is_artist(my_oid):
-            raise PermissionDeniedException()
+    @classmethod
+    def create(
+        cls: Type["Album"],
+        title: str = "Untitled",
+        cover_url: str = "/default_album_cover.png",
+    ) -> Self:
+        return cls(
+            title=Title(title),
+            cover_url=CoverUrl(cover_url),
+        )
 
+    def change_title(self, title: str) -> None:
         self.title = Title(title)
 
-    def set_cover(self, url: str, my_oid: str) -> None:
-        if not self._is_artist(my_oid):
-            raise PermissionDeniedException()
-
+    def change_cover(self, url: str) -> None:
         self.cover_url = CoverUrl(url)
-
-    def _is_artist(self, oid: str) -> bool:
-        for artist in self._get_artists():
-            if artist.oid == oid:
-                return True
-
-        return False
-
-    def _get_artists(self) -> set[Artist]:
-        artists = set()
-        for track in self.tracks:
-            artists.update(track.artists)
-
-        return artists

@@ -1,12 +1,25 @@
+from typing import Self, Type
 from dataclasses import dataclass
-from domain.entities.base import BaseEntity
 
-from domain.values.fullname import FullName
+from domain.entities.base import BaseEntity
+from domain.values.nickname import Nickname
 
 
 @dataclass(eq=False, kw_only=True, slots=True)
 class Artist(BaseEntity):
-    fullname: FullName
+    nickname: Nickname
+    # avatar_url: ...
 
-    def set_fullname(self, fullname: str) -> None:
-        self.fullname = FullName(fullname)
+    @classmethod
+    def create(
+        cls: Type["Artist"],
+        nickname: str,
+        # avatar_url: str,
+    ) -> Self:
+        return cls(
+            nickname=Nickname(nickname),
+            # avatar_url=
+        )
+
+    def change_nickname(self, nickname: str) -> None:
+        self.nickname = Nickname(nickname)

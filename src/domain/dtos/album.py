@@ -2,12 +2,12 @@ import typing as tp
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from domain.dtos.base import OidMixin, PaginationDto
+from domain.dtos.base import OidMixin, PaginationMixin
 from domain.dtos.track import TrackDto
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
-class GetNewReleasesDto(PaginationDto): ...
+class GetNewReleasesDto(PaginationMixin): ...
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
