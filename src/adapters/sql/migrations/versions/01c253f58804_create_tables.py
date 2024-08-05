@@ -1,19 +1,18 @@
-"""created tables
+"""create_tables
 
-Revision ID: 26e00fdb71e7
+Revision ID: 01c253f58804
 Revises: 
-Create Date: 2024-07-31 16:09:25.029815
+Create Date: 2024-08-03 20:42:33.248930
 
 """
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "26e00fdb71e7"
+revision: str = "01c253f58804"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -50,41 +49,37 @@ def upgrade() -> None:
         "track",
         sa.Column("audio_url", sa.String(length=255), nullable=False),
         sa.Column("duration", sa.Numeric(precision=3, scale=0), nullable=False),
+        sa.Column("listens", sa.Integer(), server_default="0", nullable=False),
         sa.Column("album_id", sa.UUID(as_uuid=False), nullable=False),
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("id", sa.UUID(as_uuid=False), nullable=False),
+        sa.CheckConstraint("listens >= 0", name="listens_check_constraint"),
         sa.ForeignKeyConstraint(["album_id"], ["album.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("audio_url"),
     )
     op.create_table(
         "track_artist",
-        sa.Column("artist_id", sa.UUID(as_uuid=False), nullable=True),
-        sa.Column("track_id", sa.UUID(as_uuid=False), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["artist_id"],
-            ["artist.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["track_id"],
-            ["track.id"],
-        ),
+        sa.Column("artist_id", sa.UUID(as_uuid=False), nullable=False),
+        sa.Column("track_id", sa.UUID(as_uuid=False), nullable=False),
+        sa.ForeignKeyConstraint(["artist_id"], ["artist.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["track_id"], ["track.id"], ondelete="CASCADE"),
         sa.UniqueConstraint(
             "artist_id", "track_id", name="track_artist_unique_constraint"
         ),
     )
     op.create_table(
         "track_in_playlist",
-        sa.Column("playlist_id", sa.UUID(as_uuid=False), nullable=True),
-        sa.Column("track_id", sa.UUID(as_uuid=False), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["playlist_id"],
-            ["playlist.id"],
+        sa.Column("playlist_id", sa.UUID(as_uuid=False), nullable=False),
+        sa.Column("track_id", sa.UUID(as_uuid=False), nullable=False),
+        sa.Column(
+            "added_at",
+            sa.DateTime(),
+            server_default=sa.text("TIMEZONE('UTC', NOW())"),
+            nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["track_id"],
-            ["track.id"],
-        ),
+        sa.ForeignKeyConstraint(["playlist_id"], ["playlist.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["track_id"], ["track.id"], ondelete="CASCADE"),
         sa.UniqueConstraint(
             "playlist_id", "track_id", name="track_in_playlist_unique_constraint"
         ),

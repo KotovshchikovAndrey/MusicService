@@ -1,8 +1,17 @@
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, orm, String, Numeric
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    orm,
+)
+
 from adapters.sql import consts
 from adapters.sql.models.artist import ArtistModel
-from adapters.sql.models.base import BaseModel
 from adapters.sql.models.associations import track_artist
+from adapters.sql.models.base import BaseModel
 from adapters.sql.models.mixins import TitleMixin
 
 
@@ -21,6 +30,11 @@ class TrackModel(TitleMixin, BaseModel):
     )
     duration: orm.Mapped[int] = orm.mapped_column(Numeric(3, 0), nullable=False)
     listens: orm.Mapped[int] = orm.mapped_column(
+        BigInteger(),
+        nullable=False,
+        server_default="0",
+    )
+    listens_per_day: orm.Mapped[int] = orm.mapped_column(
         Integer(),
         nullable=False,
         server_default="0",
@@ -32,7 +46,7 @@ class TrackModel(TitleMixin, BaseModel):
     )
     artists: orm.Mapped[list["ArtistModel"]] = orm.relationship(
         lazy="joined",
-        innerjoin=True,
+        innerjoin=True,  # because at the application level track can`t exists without artist
         uselist=True,
         secondary=track_artist,
     )

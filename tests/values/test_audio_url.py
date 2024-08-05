@@ -32,4 +32,3 @@ class TestAudioUrl:
     async def test_valid_audio_url(self, value: str) -> None:
         audio_url = AudioUrl(value)
         assert audio_url.value == value
-

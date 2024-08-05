@@ -7,6 +7,5 @@ class OidMixin:
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
-class PaginationMixin:
+class LimitMixin:
     limit: int = field(default=100)
-    offset: int = field(default=0)

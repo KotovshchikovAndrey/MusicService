@@ -1,4 +1,5 @@
 from typing import Protocol
+
 from fastapi import FastAPI
 from starlette.types import ASGIApp
 

@@ -1,5 +1,5 @@
-from io import BytesIO
 import pathlib
+from io import BytesIO
 
 import aiofiles
 import pytest
@@ -15,9 +15,10 @@ from domain.utils.uow import UnitOfWork
 class TestListenTrackUseCase:
     async def test_play_track_success(
         self,
-        track: Track,
+        track_mock: Track,
         uow_mock: UnitOfWork,
         blob_storage_mock: BlobStorage,
+        audio_mock: BytesIO,
     ) -> None:
         usecase = ListenTrackUseCase(
             uow=uow_mock,
@@ -25,20 +26,18 @@ class TestListenTrackUseCase:
             chunk_size=1024,
         )
 
+        data = ListenTrackDto(oid=track_mock.oid.value)
+        output = await usecase.execute(data=data)
+
         buffer = BytesIO()
-        output = await usecase.execute(data=ListenTrackDto(oid=track.oid))
         async for chunk in output.stream:
             buffer.write(chunk)
 
-        path = pathlib.Path(".") / "media" / "test_audio.mp3"
-        async with aiofiles.open(path, mode="rb") as io:
-            audio_file = await io.read()
-
-        assert audio_file == buffer.getvalue()
+        assert audio_mock.getvalue() == buffer.getvalue()
 
     async def test_track_not_found(
         self,
-        random_oid: str,
+        random_oid_mock: str,
         uow_mock: UnitOfWork,
         blob_storage_mock: BlobStorage,
     ) -> None:
@@ -49,4 +48,5 @@ class TestListenTrackUseCase:
         )
 
         with pytest.raises(NotFoundException):
-            await usecase.execute(data=ListenTrackDto(oid=random_oid))
+            data = ListenTrackDto(oid=random_oid_mock)
+            await usecase.execute(data=data)

@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from domain.entities.playlist import Playlist
 from domain.repositories.playlist import PlaylistRepository
 

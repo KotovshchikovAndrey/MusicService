@@ -1,8 +1,8 @@
-from domain.dtos.track import ListenTrackDto, AudioStreamDto
+from domain.dtos.track import AudioStreamDto, ListenTrackDto
 from domain.exceptions.not_found import NotFoundException
+from domain.usecases.base import BaseUseCase
 from domain.utils.blob import BlobStorage
 from domain.utils.uow import UnitOfWork
-from domain.usecases.base import BaseUseCase
 
 
 class ListenTrackUseCase(BaseUseCase[ListenTrackDto, AudioStreamDto]):

@@ -1,7 +1,7 @@
 from domain.dtos.album import AlbumDto, GetNewReleasesDto
 from domain.mappers.album import map_to_album_dto
-from domain.utils.uow import UnitOfWork
 from domain.usecases.base import BaseUseCase
+from domain.utils.uow import UnitOfWork
 
 
 class GetNewReleasesUseCase(BaseUseCase[GetNewReleasesDto, list[AlbumDto]]):
@@ -12,5 +12,5 @@ class GetNewReleasesUseCase(BaseUseCase[GetNewReleasesDto, list[AlbumDto]]):
 
     async def execute(self, data: GetNewReleasesDto) -> list[AlbumDto]:
         async with self._uow as uow:
-            albums = await uow.albums.get_new(limit=data.limit, offset=data.offset)
+            albums = await uow.albums.get_new_releases(limit=data.limit)
             return [map_to_album_dto(album) for album in albums]

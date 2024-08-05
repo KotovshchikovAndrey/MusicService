@@ -1,7 +1,8 @@
 import typing as tp
+from io import BytesIO
 
 import aioboto3
-from io import BytesIO
+
 from domain.utils.blob import BlobStorage
 
 
@@ -57,7 +58,7 @@ class S3BlobStorage(BlobStorage):
                 async with blob["Body"] as io:
                     yield await io.read()
 
-    async def put(self, blob_url: str, buffer: BytesIO) -> None:
+    async def put(self, blob_url: str, blob: BytesIO) -> None:
         session = aioboto3.Session()
         async with session.client(
             "s3",
@@ -66,13 +67,12 @@ class S3BlobStorage(BlobStorage):
             aws_secret_access_key=self._secret_key,
             use_ssl=self._use_ssl,
         ) as s3_client:
-            body = buffer.getvalue()
             await s3_client.put_object(
                 Bucket=self._bucket_name,
                 Key=self._get_key_from_url(blob_url),
-                Body=body,
+                Body=blob,
                 ContentType="audio/mpeg",
-                ContentLength=len(body),
+                ContentLength=len(blob.getvalue()),
             )
 
     async def get_byte_size(self, blob_url: str) -> int:

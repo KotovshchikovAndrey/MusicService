@@ -1,10 +1,9 @@
-from typing import Self, Type
 from dataclasses import dataclass, field
+from typing import Self, Type
 from uuid import UUID
 
 from domain.entities.base import BaseEntity
 from domain.entities.track import Track
-
 from domain.values.cover_url import CoverUrl
 from domain.values.description import Description
 from domain.values.oid import OID
@@ -23,8 +22,8 @@ class Playlist(BaseEntity):
     def create(
         cls: Type["Playlist"],
         user_oid: str,
-        title: str = "Untitled",
-        cover_url: str = "/default_playlist_cover.png",
+        title: str,
+        cover_url: str,
         description: str | None = None,
     ) -> Self:
         return cls(

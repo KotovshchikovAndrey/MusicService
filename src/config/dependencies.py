@@ -1,17 +1,17 @@
 from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adapters.s3.blob import S3BlobStorage
 from adapters.sql.connection import SqlDatabaseConnection
 from adapters.sql.uow import SqlUnitOfWork
+from config.settings import settings
 from domain.usecases.get_chart import GetChartUseCase
 from domain.usecases.get_new_releases import GetNewReleasesUseCase
 from domain.usecases.listen_track import ListenTrackUseCase
 from domain.utils.blob import BlobStorage
 from domain.utils.uow import UnitOfWork
-from config.settings import settings
-
 
 database = SqlDatabaseConnection(
     connection_url=settings.database.get_connection_url(),

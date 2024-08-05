@@ -1,10 +1,9 @@
-from datetime import UTC, datetime
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Self, Type
 
 from domain.entities.base import BaseEntity
 from domain.entities.track import Track
-
 from domain.values.cover_url import CoverUrl
 from domain.values.title import Title
 
@@ -21,8 +20,8 @@ class Album(BaseEntity):
     @classmethod
     def create(
         cls: Type["Album"],
-        title: str = "Untitled",
-        cover_url: str = "/default_album_cover.png",
+        title: str,
+        cover_url: str,
     ) -> Self:
         return cls(
             title=Title(title),

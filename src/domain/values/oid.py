@@ -1,6 +1,7 @@
 import typing as tp
 import uuid
 from dataclasses import dataclass
+
 from domain.values.base import BaseValue
 
 

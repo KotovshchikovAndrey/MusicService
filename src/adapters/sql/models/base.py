@@ -13,7 +13,7 @@ class BaseModel(orm.DeclarativeBase):
     def __tablename__(cls) -> str:
         return cls.__name__.replace("Model", "").lower()
 
-    def get_sql_values(self) -> dict:
+    def get_upsert_values(self) -> dict:
         values = dict()
         for column in self.__table__.columns:
             value = getattr(self, column.name.replace("id", "oid"), None)

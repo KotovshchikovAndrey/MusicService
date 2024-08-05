@@ -32,4 +32,3 @@ class TestCoverUrl:
     async def test_valid_cover_url(self, value: str) -> None:
         cover_url = CoverUrl(value)
         assert cover_url.value == value
-

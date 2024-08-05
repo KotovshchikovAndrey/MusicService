@@ -1,11 +1,7 @@
 import pytest
-from domain.entities.album import Album
-from domain.entities.artist import Artist
-from domain.entities.track import Track
 
-from domain.values.audio_url import AudioUrl
-from domain.values.duration import Duration
-from domain.values.title import Title
+from domain.entities.album import Album
+from domain.entities.track import Track
 
 
 class TestTrack:
@@ -34,22 +30,18 @@ class TestTrack:
         title: str,
         duration: int,
         audio_url: str,
-        artist: Artist,
-        album: Album,
+        album_mock: Album,
     ) -> None:
-        new_track = Track(
-            album_oid=album.oid,
-            title=Title(title),
-            duration=Duration(duration),
-            audio_url=AudioUrl(audio_url),
-            artists=(artist,),
+        new_track = Track.create(
+            album_oid=album_mock.oid.value,
+            audio_url=audio_url,
+            duration=duration,
+            title=title,
         )
 
         assert new_track.oid is not None
         assert new_track.title.value == title
         assert new_track.duration.value == duration
         assert new_track.audio_url.value == audio_url
-        assert new_track.album_oid == album.oid
-
-        assert len(new_track.artists) == 1
-        assert new_track.artists[0] == artist
+        assert new_track.album_oid == album_mock.oid
+        assert new_track.listens.value == 0

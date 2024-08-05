@@ -22,5 +22,4 @@ def map_to_album_model(album: Album) -> AlbumModel:
         title=album.title.value,
         cover_url=album.cover_url.value,
         created_at=album.created_at,
-        tracks=[map_to_track_model(album.oid.value, entity) for entity in album.tracks],
     )

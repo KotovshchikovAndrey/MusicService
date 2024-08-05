@@ -6,4 +6,5 @@ def map_to_artist_dto(artist: Artist) -> ArtistDto:
     return ArtistDto(
         oid=artist.oid.value,
         nickname=artist.nickname.value,
+        avatar_url=artist.avatar_url.value,
     )

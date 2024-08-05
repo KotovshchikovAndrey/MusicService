@@ -1,7 +1,9 @@
 from typing import Self
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adapters.sql.repositories.album import AlbumSqlRepository
+from adapters.sql.repositories.artist import ArtistSqlRepository
 from adapters.sql.repositories.playlist import PlaylistSqlRepository
 from adapters.sql.repositories.track import TrackSqlRepository
 from domain.utils.uow import UnitOfWork
@@ -17,6 +19,7 @@ class SqlUnitOfWork(UnitOfWork):
         self.tracks = TrackSqlRepository(session=self._session)
         self.playlists = PlaylistSqlRepository(session=self._session)
         self.albums = AlbumSqlRepository(session=self._session)
+        self.artists = ArtistSqlRepository(session=self._session)
 
         return await super().__aenter__()
 

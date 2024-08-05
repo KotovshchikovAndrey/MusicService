@@ -1,98 +1,90 @@
-from typing import AsyncGenerator
-import pathlib
-import aiofiles
-import pytest
+from io import BytesIO
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from domain.entities.album import Album
 from domain.entities.artist import Artist
 from domain.entities.track import Track
-from domain.repositories.track import TrackRepository
 from domain.utils.blob import BlobStorage
+from domain.utils.moderation import ModerationServiceAdapter
 from domain.utils.uow import UnitOfWork
 from domain.values.audio_url import AudioUrl
+from domain.values.avatar_url import AvatarUrl
 from domain.values.cover_url import CoverUrl
 from domain.values.duration import Duration
+from domain.values.listens import Listens
 from domain.values.nickname import Nickname
 from domain.values.oid import OID
 from domain.values.title import Title
+from tests.mocks.blob_storage import MockedBlobStorage
+from tests.mocks.uow import MockedUnitOfWork
 
 
 @pytest.fixture
-def artist() -> Artist:
-    return Artist(nickname=Nickname("Unknown"))
+def artist_mock() -> Artist:
+    return Artist(
+        nickname=Nickname("Unknown"),
+        avatar_url=AvatarUrl("/avatar.png"),
+    )
 
 
 @pytest.fixture
-def album_oid() -> OID:
+def album_oid_mock() -> OID:
     return OID.generate()
 
 
 @pytest.fixture
-def track(album_oid, artist: Artist) -> Track:
+def track_mock(album_oid_mock, artist_mock: Artist) -> Track:
     return Track(
-        album_oid=album_oid,
+        album_oid=album_oid_mock,
         title=Title("In The End (Mellen Gi Remix)"),
         audio_url=AudioUrl("/test_audio.mp3"),
         duration=Duration(4 * 60),
-        artists=(artist,),
+        listens=Listens(0),
+        artists=(artist_mock,),
     )
 
 
 @pytest.fixture
-def album(album_oid: OID, track: Track) -> Album:
+def album_mock(album_oid_mock: OID, track_mock: Track) -> Album:
     return Album(
-        oid=album_oid,
+        oid=album_oid_mock,
         title=Title("Vmeste My"),
         cover_url=CoverUrl("/test_cover.png"),
-        tracks=(track,),
+        tracks=(track_mock,),
     )
 
 
 @pytest.fixture
-def random_oid() -> str:
+def random_oid_mock() -> str:
     oid = OID.generate()
     return oid.value
 
 
 @pytest.fixture
-def uow_mock(track: Track) -> UnitOfWork:
-    uow_mock = MagicMock(spec=UnitOfWork)
-    uow_mock.__aenter__.return_value = uow_mock
-    uow_mock.commit = AsyncMock()
-    uow_mock.rollback = AsyncMock()
-
-    async def get_by_oid(track_oid: str) -> Track | None:
-        if track.oid == track_oid:
-            return track
-
-    tracks = MagicMock(spec=TrackRepository)
-    tracks.get_by_oid = get_by_oid
-
-    uow_mock.tracks = tracks
-    return uow_mock
+def audio_mock() -> BytesIO:
+    blob = BytesIO(b"12345")
+    blob.name = "test_audio.mp3"
+    return blob
 
 
 @pytest.fixture
-def blob_storage_mock() -> BlobStorage:
-    blob_storage_mock = MagicMock(spec=BlobStorage)
+def moderation_service_mock(audio_mock: BytesIO) -> ModerationServiceAdapter:
+    mocked_moderation_service = MagicMock(spec=ModerationServiceAdapter)
+    mocked_moderation_service.upload_approved_audio = AsyncMock(return_value=audio_mock)
+    return mocked_moderation_service
 
-    async def read(
-        blob_url: str,
-        chunk_size: int,
-        start_byte: int = 0,
-        end_byte: int | None = None,
-    ) -> AsyncGenerator[bytes, None]:
-        path = pathlib.Path(".") / "media" / blob_url.replace("/", "")
-        async with aiofiles.open(path, mode="rb") as io:
-            await io.seek(start_byte)
-            while chunk := await io.read(chunk_size):
-                yield chunk
 
-    async def get_byte_size(blob_url: str) -> int:
-        path = pathlib.Path(".") / "media" / blob_url.replace("/", "")
-        return path.stat().st_size
+@pytest.fixture
+def uow_mock(album_mock: Album, artist_mock: Artist, track_mock: Track) -> UnitOfWork:
+    return MockedUnitOfWork(
+        tracks=[track_mock],
+        albums=[album_mock],
+        artists=[artist_mock],
+    )
 
-    blob_storage_mock.read = read
-    blob_storage_mock.get_byte_size = get_byte_size
-    return blob_storage_mock
+
+@pytest.fixture
+def blob_storage_mock(audio_mock: BytesIO) -> BlobStorage:
+    return MockedBlobStorage(blobs=[audio_mock])

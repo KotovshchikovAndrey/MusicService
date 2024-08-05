@@ -1,7 +1,7 @@
 import uvicorn
+
 from config.app_factory import FastApiAppFactory
 from config.settings import settings
-
 
 app_factory = FastApiAppFactory()
 app = app_factory.create()

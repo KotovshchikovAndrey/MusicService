@@ -1,4 +1,5 @@
 from sqlalchemy import String, orm
+
 from adapters.sql.models.base import BaseModel
 
 

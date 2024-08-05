@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from domain.values.base import BaseValue
 
 
