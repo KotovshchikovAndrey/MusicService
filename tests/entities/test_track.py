@@ -34,6 +34,7 @@ class TestTrack:
     ) -> None:
         new_track = Track.create(
             album_oid=album_mock.oid.value,
+            cover_url=album_mock.cover_url.value,
             audio_url=audio_url,
             duration=duration,
             title=title,
@@ -44,4 +45,5 @@ class TestTrack:
         assert new_track.duration.value == duration
         assert new_track.audio_url.value == audio_url
         assert new_track.album_oid == album_mock.oid
+        assert new_track.cover_url.value == album_mock.cover_url.value
         assert new_track.listens.value == 0

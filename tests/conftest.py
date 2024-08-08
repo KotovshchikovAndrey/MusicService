@@ -42,6 +42,7 @@ def track_mock(album_oid_mock, artist_mock: Artist) -> Track:
         audio_url=AudioUrl("/test_audio.mp3"),
         duration=Duration(4 * 60),
         listens=Listens(0),
+        cover_url=CoverUrl("/test_cover.png"),
         artists=(artist_mock,),
     )
 

@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
@@ -13,6 +14,10 @@ from adapters.sql.models.artist import ArtistModel
 from adapters.sql.models.associations import track_artist
 from adapters.sql.models.base import BaseModel
 from adapters.sql.models.mixins import TitleMixin
+
+
+if TYPE_CHECKING:
+    from adapters.sql.models.album import AlbumModel
 
 
 class TrackModel(TitleMixin, BaseModel):
@@ -43,6 +48,10 @@ class TrackModel(TitleMixin, BaseModel):
         ForeignKey("album.id", ondelete="CASCADE"),
         nullable=False,
         name="album_id",
+    )
+    album: orm.Mapped["AlbumModel"] = orm.relationship(
+        lazy="joined",
+        innerjoin=True,
     )
     artists: orm.Mapped[list["ArtistModel"]] = orm.relationship(
         lazy="joined",

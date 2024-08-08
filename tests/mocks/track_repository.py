@@ -31,6 +31,7 @@ class MockedTrackRepository(TrackRepository):
             duration=track.duration,
             listens=track.listens,
             artists=artists,
+            cover_url=track.cover_url,
         )
 
         self._tracks[track.oid.value] = track

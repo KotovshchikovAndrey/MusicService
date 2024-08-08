@@ -1,9 +1,11 @@
 from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from adapters.sql import consts
 from adapters.sql.mappers.track import map_to_track_entity, map_to_track_model
+from adapters.sql.models.album import AlbumModel
 from adapters.sql.models.associations import track_artist
 from adapters.sql.models.track import TrackModel
 from domain.entities.artist import Artist
@@ -18,14 +20,26 @@ class TrackSqlRepository(TrackRepository):
         self._session = session
 
     async def get_by_oid(self, track_oid: str) -> Track | None:
-        stmt = select(TrackModel).where(TrackModel.oid == track_oid)
+        stmt = (
+            select(TrackModel)
+            .options(joinedload(TrackModel.album).load_only(AlbumModel.cover_url))
+            .where(TrackModel.oid == track_oid)
+        )
+
         model = await self._session.scalar(stmt)
         if model is not None:
             return map_to_track_entity(model)
 
     async def get_top_for_all_time(self, limit: int) -> list[Track]:
-        stmt = select(TrackModel).order_by(TrackModel.listens.desc()).limit(limit)
-        models = await self._session.scalars(stmt)
+        stmt = (
+            select(TrackModel)
+            .options(joinedload(TrackModel.album).load_only(AlbumModel.cover_url))
+            .order_by(TrackModel.listens.desc())
+            .limit(limit)
+        )
+
+        result = await self._session.execute(stmt)
+        models = result.unique().scalars()
         return [map_to_track_entity(model) for model in models]
 
     async def get_top_for_day(self, limit: int) -> list[Track]: ...

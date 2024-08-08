@@ -17,6 +17,7 @@ aioboto3 = "^13.1.1"
 sqlalchemy = "^2.0.31"
 alembic = "^1.13.2"
 asyncpg = "^0.29.0"
+strawberry-graphql = {extras = ["fastapi"], version = "^0.237.3"}
 
 
 [build-system]

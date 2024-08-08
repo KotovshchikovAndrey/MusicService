@@ -48,6 +48,7 @@ class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackOid]):
 
         track = Track.create(
             album_oid=album.oid.value,
+            cover_url=album.cover_url.value,
             title=data.title,
             duration=data.duration,
             audio_url=audio_url,
@@ -64,6 +65,6 @@ class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackOid]):
     ) -> None:
         async with self._uow as uow:
             await uow.tracks.upsert(track)
-            await self._blob_storage.put(blob_url=track.audio_url.value, blob=audio)
             await uow.tracks.set_track_artists(track.oid.value, *artists)
+            await self._blob_storage.put(blob_url=track.audio_url.value, blob=audio)
             await uow.commit()

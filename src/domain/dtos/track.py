@@ -12,9 +12,11 @@ class GetChartDto(LimitMixin): ...
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class TrackDto(OidMixin):
+    album_oid: str
     title: str
     audio_url: str
     duration: int
+    cover_url: str
     artists: Iterable[ArtistDto] = field(default_factory=list)
 
 

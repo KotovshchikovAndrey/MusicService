@@ -1,7 +1,8 @@
-from adapters.sql.mappers.artist import map_to_artist_entity, map_to_artist_model
+from adapters.sql.mappers.artist import map_to_artist_entity
 from adapters.sql.models.track import TrackModel
 from domain.entities.track import Track
 from domain.values.audio_url import AudioUrl
+from domain.values.cover_url import CoverUrl
 from domain.values.duration import Duration
 from domain.values.listens import Listens
 from domain.values.oid import OID
@@ -16,6 +17,7 @@ def map_to_track_entity(track_model: TrackModel) -> Track:
         audio_url=AudioUrl(track_model.audio_url),
         duration=Duration(track_model.duration),
         listens=Listens(track_model.listens),
+        cover_url=CoverUrl(track_model.album.cover_url),
         artists=tuple(map_to_artist_entity(model) for model in track_model.artists),
     )
 
