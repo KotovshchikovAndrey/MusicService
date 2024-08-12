@@ -3,6 +3,7 @@ from typing import Iterable
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import func
 
 from adapters.sql.mappers.artist import map_to_artist, map_to_artist_model
 from adapters.sql.models.artist import ArtistModel
@@ -21,6 +22,16 @@ class ArtistSqlRepository(ArtistRepository):
         model = await self._session.scalar(stmt)
         if model is not None:
             return map_to_artist(model)
+
+    async def get_list(self, limit: int, offset: int) -> list[Artist]:
+        stmt = select(ArtistModel).limit(limit).offset(offset)
+        models = await self._session.scalars(stmt)
+        return [map_to_artist(model) for model in models]
+
+    async def get_total_count(self) -> int:
+        stmt = select(func.count()).select_from(ArtistModel)
+        total_count: int = await self._session.scalar(stmt)
+        return total_count
 
     async def filter_by_oids(self, artist_oids: Iterable[str]) -> list[Artist]:
         stmt = select(ArtistModel).where(ArtistModel.oid.in_(artist_oids))

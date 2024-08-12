@@ -7,6 +7,7 @@ from adapters.s3.blob import S3BlobStorage
 from adapters.sql.connection import SqlDatabaseConnection
 from adapters.sql.uow import SqlUnitOfWork
 from config.settings import settings
+from domain.usecases.get_artists import GetArtistsUseCase
 from domain.usecases.get_chart import GetChartUseCase
 from domain.usecases.get_new_releases import GetNewReleasesUseCase
 from domain.usecases.listen_track import ListenTrackUseCase
@@ -19,7 +20,7 @@ database = SqlDatabaseConnection(
 )
 
 
-def unit_of_work(
+async def unit_of_work(
     session: Annotated[AsyncSession, Depends(database.get_session)]
 ) -> UnitOfWork:
     return SqlUnitOfWork(session=session)
@@ -58,10 +59,28 @@ def get_chart_usecase(
     return GetChartUseCase(uow=uow)
 
 
-ListenTrackDependency = Annotated[ListenTrackUseCase, Depends(get_listen_track_usecase)]
+def get_artists_usecase(
+    uow: Annotated[UnitOfWork, Depends(unit_of_work)]
+) -> GetArtistsUseCase:
+    return GetArtistsUseCase(uow=uow, limit=20)
 
-GetNewReleasesDependency = Annotated[
-    GetNewReleasesUseCase, Depends(get_new_releases_usecase)
+
+ListenTrackDependency = Annotated[
+    ListenTrackUseCase,
+    Depends(get_listen_track_usecase),
 ]
 
-GetChartDependency = Annotated[GetChartUseCase, Depends(get_chart_usecase)]
+GetNewReleasesDependency = Annotated[
+    GetNewReleasesUseCase,
+    Depends(get_new_releases_usecase),
+]
+
+GetChartDependency = Annotated[
+    GetChartUseCase,
+    Depends(get_chart_usecase),
+]
+
+GetArtistsDependency = Annotated[
+    GetArtistsUseCase,
+    Depends(get_artists_usecase),
+]

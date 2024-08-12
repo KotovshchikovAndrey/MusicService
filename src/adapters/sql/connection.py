@@ -14,7 +14,7 @@ class SqlDatabaseConnection:
     _instance: Self | None = None
 
     _engine: AsyncEngine
-    _scoped_factory: async_scoped_session[AsyncSession]
+    _session_factory: async_sessionmaker[AsyncSession]
 
     def __new__(cls: Type["SqlDatabaseConnection"], *args, **kwargs) -> Self:
         if cls._instance is None:
@@ -28,22 +28,25 @@ class SqlDatabaseConnection:
         echo: bool = True,
     ) -> None:
         self._engine = create_async_engine(url=connection_url, echo=echo)
-        session_factory = async_sessionmaker(
+        self._session_factory = async_sessionmaker(
             bind=self._engine,
             autoflush=False,
             autocommit=False,
             expire_on_commit=False,
         )
 
-        self._scoped_factory = async_scoped_session(
-            session_factory=session_factory,
-            scopefunc=current_task,
-        )
-
     async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
-        session = self._scoped_factory()
+        session = self._get_scoped_session()
         yield session
-        await self._scoped_factory.remove()
+        await session.remove()
 
     async def close(self) -> None:
         await self._engine.dispose()
+
+    def _get_scoped_session(self) -> async_scoped_session[AsyncSession]:
+        session = async_scoped_session(
+            session_factory=self._session_factory,
+            scopefunc=current_task,
+        )
+
+        return session

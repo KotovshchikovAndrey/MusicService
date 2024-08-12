@@ -1,4 +1,11 @@
+from typing import Annotated
+
 import strawberry
+
+from adapters.graphql.schemas.exceptions import (
+    InvalidLimitParamException,
+    InvalidPageParamException,
+)
 
 
 @strawberry.type
@@ -44,16 +51,42 @@ class AlbumInfoSchema(AlbumSchema):
 
 
 @strawberry.type
-class ApiResponse:
-    status_code: int = 200
-    message: str = "Success"
+class PaginationSchema:
+    count: int
+    total_count: int
+    total_pages: int
+    current_page: int
+    next_page: int | None = None
+    prev_page: int | None = None
 
 
 @strawberry.type
-class ChartResponse(ApiResponse):
+class ChartSuccess:
     tracks: list[ChartedTrackSchema]
 
 
 @strawberry.type
-class NewReleasesResponse(ApiResponse):
+class NewReleasesSuccess:
     albums: list[AlbumInfoSchema]
+
+
+@strawberry.type
+class ArtistsSuccess:
+    artists: list[ArtistSchema]
+    pagination: PaginationSchema
+
+
+ChartResponse = Annotated[
+    ChartSuccess | InvalidLimitParamException,
+    strawberry.union("ChartResponse"),
+]
+
+NewReleasesResponse = Annotated[
+    NewReleasesSuccess | InvalidLimitParamException,
+    strawberry.union("NewReleasesResponse"),
+]
+
+ArtistsResponse = Annotated[
+    ArtistsSuccess | InvalidPageParamException,
+    strawberry.union("ArtistsResponse"),
+]

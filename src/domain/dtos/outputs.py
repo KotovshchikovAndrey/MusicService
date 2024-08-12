@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import AsyncGenerator, Iterable
 
-from domain.dtos.mixins import OidMixin
+from domain.dtos.mixins import OidMixin, PaginationMixin
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -12,6 +12,11 @@ class ArtistLinkDto(OidMixin):
 @dataclass(frozen=True, kw_only=True, slots=True)
 class ArtistDto(ArtistLinkDto):
     avatar_url: str
+
+
+@dataclass(frozen=True, kw_only=True, slots=True)
+class ArtistListDto(PaginationMixin):
+    artists: Iterable[ArtistDto] = field(default_factory=list)
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)

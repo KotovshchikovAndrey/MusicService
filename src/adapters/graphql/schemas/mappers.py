@@ -1,11 +1,13 @@
 from adapters.graphql.schemas.responses import (
     AlbumInfoSchema,
     ArtistLinkSchema,
+    ArtistSchema,
     ChartedTrackSchema,
     TrackItemSchema,
 )
 from domain.dtos.outputs import (
     AlbumInfoDto,
+    ArtistDto,
     ArtistLinkDto,
     ChartedTrackDto,
     TrackItemDto,
@@ -16,6 +18,14 @@ def map_to_artist_link_schema(artist: ArtistLinkDto) -> ArtistLinkSchema:
     return ArtistLinkSchema(
         oid=artist.oid,
         nickname=artist.nickname,
+    )
+
+
+def map_to_artist_schema(artist: ArtistDto) -> ArtistLinkSchema:
+    return ArtistSchema(
+        oid=artist.oid,
+        nickname=artist.nickname,
+        avatar_url=artist.avatar_url,
     )
 
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Iterable
 
 from domain.common.exceptions import BadRequestException
-from domain.dtos.mixins import LimitMixin, OidMixin
+from domain.dtos.mixins import LimitMixin, OidMixin, PageMixin
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -11,6 +11,10 @@ class GetChartDto(LimitMixin): ...
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class GetNewReleasesDto(LimitMixin): ...
+
+
+@dataclass(frozen=True, kw_only=True, slots=True)
+class GetArtistsDto(PageMixin): ...
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)

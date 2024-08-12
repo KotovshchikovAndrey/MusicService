@@ -52,7 +52,10 @@ class TrackModel(TitleMixin, BaseModel):
         nullable=False,
         name="album_id",
     )
-    album: orm.Mapped["AlbumModel"] = orm.relationship(lazy="raise")
+    album: orm.Mapped["AlbumModel"] = orm.relationship(
+        lazy="raise",
+        back_populates="tracks",
+    )
     artists: orm.Mapped[list["ArtistModel"]] = orm.relationship(
         lazy="raise",
         secondary=track_artist,
