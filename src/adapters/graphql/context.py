@@ -18,6 +18,6 @@ class GraphqlContext(BaseContext):
 
 
 async def get_context(
-    context: GraphqlContext = Depends(GraphqlContext, use_cache=False),
+    context: GraphqlContext = Depends(GraphqlContext),
 ):
     return context
