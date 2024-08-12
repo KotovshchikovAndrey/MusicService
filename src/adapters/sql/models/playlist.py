@@ -14,10 +14,12 @@ class PlaylistModel(TitleMixin, CoverUrlMixin, BaseModel):
         index=True,
         name="user_id",
     )
-    description: orm.Mapped[str | None] = orm.mapped_column(Text(), nullable=True)
+    description: orm.Mapped[str | None] = orm.mapped_column(
+        Text(),
+        nullable=True,
+    )
     tracks: orm.Mapped[list["TrackModel"]] = orm.relationship(
-        lazy="noload",
-        uselist=True,
+        lazy="raise",
         secondary=track_in_playlist,
-        order_by=track_in_playlist.columns.get("added_at"),
+        # order_by=track_in_playlist.columns.get("added_at"),
     )

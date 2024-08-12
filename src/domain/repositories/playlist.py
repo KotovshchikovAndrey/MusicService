@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from domain.entities.playlist import Playlist
+from domain.entities.playlist import Playlist, PlaylistInfo
 
 
 class PlaylistRepository(Protocol):
@@ -8,9 +8,9 @@ class PlaylistRepository(Protocol):
         self, user_oid: str, limit: int, offset: int
     ) -> list[Playlist]: ...
 
-    async def get_user_playlist(
+    async def get_user_playlist_info(
         self, user_oid: str, playlist_oid: str
-    ) -> Playlist | None: ...
+    ) -> PlaylistInfo | None: ...
 
     async def upsert(self, playlist: Playlist) -> None: ...
 

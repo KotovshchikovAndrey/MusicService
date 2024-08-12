@@ -1,29 +1,18 @@
 from dataclasses import dataclass
-from typing import Self, Type
 
 from domain.entities.base import BaseEntity
 from domain.values.avatar_url import AvatarUrl
 from domain.values.nickname import Nickname
-from domain.values.oid import OID
 
 
 @dataclass(eq=False, kw_only=True, slots=True)
-class Artist(BaseEntity):
+class ArtistLink(BaseEntity):
     nickname: Nickname
-    avatar_url: AvatarUrl
 
-    @classmethod
-    def create(
-        cls: Type["Artist"],
-        oid: str,
-        nickname: str,
-        avatar_url: str,
-    ) -> Self:
-        return cls(
-            oid=OID(oid),
-            nickname=Nickname(nickname),
-            avatar_url=AvatarUrl(avatar_url),
-        )
+
+@dataclass(eq=False, kw_only=True, slots=True)
+class Artist(ArtistLink):
+    avatar_url: AvatarUrl
 
     def change_nickname(self, nickname: str) -> None:
         self.nickname = Nickname(nickname)

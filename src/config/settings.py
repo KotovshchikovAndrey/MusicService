@@ -32,6 +32,9 @@ class DatabaseSettings(Settings):
     def get_connection_url(self) -> str:
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
 
+    def get_test_connection_url(self) -> str:
+        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/test_{self.db_name}"
+
 
 class AppSettings(BaseModel):
     server_host: Annotated[str, Field(alias="SERVER_HOST", default="127.0.0.1")]

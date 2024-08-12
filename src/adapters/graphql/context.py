@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+
 from fastapi import Depends
 from strawberry.fastapi import BaseContext
+
 from config.dependencies import GetChartDependency, GetNewReleasesDependency
 
 

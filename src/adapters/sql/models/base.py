@@ -13,10 +13,14 @@ class BaseModel(orm.DeclarativeBase):
     def __tablename__(cls) -> str:
         return cls.__name__.replace("Model", "").lower()
 
-    def get_upsert_values(self) -> dict:
+    def get_values_to_upsert(self, exclude: set[str] | None = None) -> dict:
         values = dict()
         for column in self.__table__.columns:
-            value = getattr(self, column.name.replace("id", "oid"), None)
+            model_field_name = column.name.replace("id", "oid")
+            if exclude is not None and model_field_name in exclude:
+                continue
+
+            value = getattr(self, model_field_name, None)
             values[column.name] = value
 
         return values

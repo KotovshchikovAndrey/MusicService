@@ -1,6 +1,7 @@
-from domain.dtos.artist import ArtistDto, UpdateArtistDto
-from domain.exceptions.not_found import NotFoundException
-from domain.mappers.atrist import map_to_artist_dto
+from domain.common.exceptions import NotFoundException
+from domain.common.mappers import map_to_artist_dto
+from domain.dtos.inputs import UpdateArtistDto
+from domain.dtos.outputs import ArtistDto
 from domain.usecases.base import BaseUseCase
 from domain.utils.uow import UnitOfWork
 

@@ -1,15 +1,21 @@
+from typing import Iterable, Literal
+
 from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from adapters.sql import consts
-from adapters.sql.mappers.track import map_to_track_entity, map_to_track_model
+from adapters.sql.mappers.track import (
+    map_to_charted_track,
+    map_to_track,
+    map_to_track_model,
+)
 from adapters.sql.models.album import AlbumModel
+from adapters.sql.models.artist import ArtistModel
 from adapters.sql.models.associations import track_artist
 from adapters.sql.models.track import TrackModel
-from domain.entities.artist import Artist
-from domain.entities.track import Track
+from domain.entities.track import ChartedTrack, Track
 from domain.repositories.track import TrackRepository
 
 
@@ -20,35 +26,53 @@ class TrackSqlRepository(TrackRepository):
         self._session = session
 
     async def get_by_oid(self, track_oid: str) -> Track | None:
-        stmt = (
-            select(TrackModel)
-            .options(joinedload(TrackModel.album).load_only(AlbumModel.cover_url))
-            .where(TrackModel.oid == track_oid)
-        )
-
+        stmt = select(TrackModel).where(TrackModel.oid == track_oid)
         model = await self._session.scalar(stmt)
         if model is not None:
-            return map_to_track_entity(model)
+            return map_to_track(model)
 
-    async def get_top_for_all_time(self, limit: int) -> list[Track]:
+    async def get_top_chart_for_period(
+        self, period: Literal["all_time"] | Literal["day"], limit: int
+    ) -> list[ChartedTrack]:
         stmt = (
             select(TrackModel)
-            .options(joinedload(TrackModel.album).load_only(AlbumModel.cover_url))
-            .order_by(TrackModel.listens.desc())
+            .options(
+                joinedload(
+                    TrackModel.artists,
+                    innerjoin=True,
+                ).load_only(
+                    ArtistModel.oid,
+                    ArtistModel.nickname,
+                ),
+                joinedload(
+                    TrackModel.album,
+                    innerjoin=True,
+                ).load_only(
+                    AlbumModel.cover_url,
+                ),
+            )
             .limit(limit)
         )
 
+        match period:
+            case "all_time":
+                stmt = stmt.order_by(TrackModel.listens.desc())
+            case "day":
+                stmt = stmt.order_by(TrackModel.listens_per_day.desc())
+
         result = await self._session.execute(stmt)
         models = result.unique().scalars()
-        return [map_to_track_entity(model) for model in models]
-
-    async def get_top_for_day(self, limit: int) -> list[Track]: ...
+        return [map_to_charted_track(model) for model in models]
 
     async def upsert(self, track: Track) -> None:
         model = map_to_track_model(track)
-
-        values = model.get_upsert_values()
-        del values["listens"]
+        values = model.get_values_to_upsert(
+            exclude={
+                "listens",
+                "listens_per_day",
+                "album_oid",
+            }
+        )
 
         stmt = insert(TrackModel).values(values)
         stmt = stmt.on_conflict_do_update(
@@ -58,10 +82,10 @@ class TrackSqlRepository(TrackRepository):
 
         await self._session.execute(stmt)
 
-    async def set_track_artists(self, track_oid: str, *artists: Artist) -> None:
+    async def set_artists(self, track_oid: str, artist_oids: Iterable[str]) -> None:
         track_artist_values = []
-        for artist in artists:
-            track_artist_value = dict(track_id=track_oid, artist_id=artist.oid.value)
+        for artist_oid in artist_oids:
+            track_artist_value = dict(track_id=track_oid, artist_id=artist_oid)
             track_artist_values.append(track_artist_value)
 
         stmt = insert(track_artist).values(track_artist_values)

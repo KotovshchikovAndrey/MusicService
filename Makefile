@@ -9,5 +9,6 @@ minio:
 	# mc alias set localhost http://localhost:9000 andrey 12345test
 	# mc mb localhost/tracks
 
-a:
-	python andrey.py
+format:
+	isort .
+	black .

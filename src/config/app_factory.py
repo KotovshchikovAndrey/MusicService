@@ -3,8 +3,8 @@ from typing import Protocol
 from fastapi import FastAPI
 from starlette.types import ASGIApp
 
-from adapters.rest.v1 import router as v1_router
 from adapters.graphql import router as graphql_router
+from adapters.rest.v1 import router as v1_router
 from config.dependencies import database
 
 

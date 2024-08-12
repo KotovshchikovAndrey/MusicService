@@ -1,7 +1,7 @@
 from domain.common import consts
-from domain.dtos.artist import RegisterArtistDto
-from domain.entities.artist import Artist
-from domain.exceptions.conflict import ConflictException
+from domain.common.exceptions import ConflictException
+from domain.dtos.inputs import RegisterArtistDto
+from domain.factories.artist import ArtistFactory
 from domain.usecases.base import BaseUseCase
 from domain.utils.uow import UnitOfWork
 
@@ -18,12 +18,13 @@ class RegisterArtistUseCase(BaseUseCase[RegisterArtistDto, None]):
             if artist is not None:
                 raise ConflictException("Artist already exists")
 
-        artist = Artist.create(
-            oid=data.oid,
+        artist_factory = ArtistFactory(
+            user_oid=data.oid,
             nickname=data.nickname,
             avatar_url=consts.DEFAULT_ARTIST_AVATAR,
         )
 
+        artist = artist_factory.create()
         async with self._uow as uow:
             await uow.artists.upsert(artist)
             await uow.commit()

@@ -13,7 +13,6 @@ class AlbumModel(TitleMixin, CoverUrlMixin, BaseModel):
         nullable=False,
     )
     tracks: orm.Mapped[list["TrackModel"]] = orm.relationship(
-        lazy="noload",
-        uselist=True,
+        lazy="raise",
         order_by=TrackModel.title,
     )

@@ -1,5 +1,6 @@
-from domain.dtos.track import AudioStreamDto, ListenTrackDto
-from domain.exceptions.not_found import NotFoundException
+from domain.common.exceptions import NotFoundException
+from domain.dtos.inputs import ListenTrackDto
+from domain.dtos.outputs import AudioStreamDto
 from domain.usecases.base import BaseUseCase
 from domain.utils.blob import BlobStorage
 from domain.utils.uow import UnitOfWork
@@ -22,7 +23,7 @@ class ListenTrackUseCase(BaseUseCase[ListenTrackDto, AudioStreamDto]):
 
     async def execute(self, data: ListenTrackDto) -> AudioStreamDto:
         async with self._uow as uow:
-            track = await uow.tracks.get_by_oid(track_oid=data.oid)
+            track = await uow.tracks.get_by_oid(data.oid)
             if track is None:
                 raise NotFoundException("Track not found")
 

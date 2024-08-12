@@ -3,9 +3,14 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from adapters.sql.mappers.album import map_to_album_entity, map_to_album_model
+from adapters.sql.mappers.album import (
+    map_to_album,
+    map_to_album_info,
+    map_to_album_model,
+)
 from adapters.sql.models.album import AlbumModel
-from domain.entities.album import Album
+from adapters.sql.models.track import TrackModel
+from domain.entities.album import Album, AlbumInfo
 from domain.repositories.album import AlbumRepository
 
 
@@ -15,25 +20,43 @@ class AlbumSqlRepository(AlbumRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def get_new_releases(self, limit: int) -> list[Album]:
-        stmt = select(AlbumModel).order_by(AlbumModel.created_at.desc()).limit(limit)
-        models = await self._session.scalars(stmt)
-        return [map_to_album_entity(model) for model in models]
+    async def get_new_releases(self, limit: int) -> list[AlbumInfo]:
+        stmt = (
+            select(AlbumModel)
+            .options(
+                joinedload(
+                    AlbumModel.tracks,
+                    innerjoin=True,
+                ).joinedload(
+                    TrackModel.artists,
+                    innerjoin=True,
+                ),
+            )
+            .order_by(AlbumModel.created_at.desc())
+            .limit(limit)
+        )
 
-    async def get_by_oid(
-        self, album_oid: str, fetch_tracks: bool = False
-    ) -> Album | None:
+        result = await self._session.execute(stmt)
+        models = result.unique().scalars()
+        return [map_to_album_info(model) for model in models]
+
+    async def get_by_oid(self, album_oid: str) -> Album | None:
         stmt = select(AlbumModel).where(AlbumModel.oid == album_oid)
-        if fetch_tracks:
-            stmt = stmt.options(joinedload(AlbumModel.tracks))
-
         model = await self._session.scalar(stmt)
         if model is not None:
-            return map_to_album_entity(model)
+            return map_to_album(model)
+
+    async def check_exists(self, album_oid: str) -> bool:
+        stmt = select(
+            select(AlbumModel.oid).where(AlbumModel.oid == album_oid).exists()
+        )
+
+        result = await self._session.scalar(stmt)
+        return bool(result)
 
     async def upsert(self, album: Album) -> None:
         model = map_to_album_model(album)
-        stmt = insert(AlbumModel).values(**model.get_upsert_values())
+        stmt = insert(AlbumModel).values(model.get_values_to_upsert())
         stmt = stmt.on_conflict_do_update(
             index_elements=[AlbumModel.oid],
             set_=dict(stmt.excluded),

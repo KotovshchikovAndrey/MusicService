@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, status
 from fastapi.responses import StreamingResponse
 
 from config.dependencies import ListenTrackDependency
-from domain.dtos.track import ListenTrackDto
+from domain.dtos.inputs import ListenTrackDto
 
 router = APIRouter(prefix="/tracks")
 

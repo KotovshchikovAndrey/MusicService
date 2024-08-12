@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
@@ -14,7 +15,6 @@ from adapters.sql.models.artist import ArtistModel
 from adapters.sql.models.associations import track_artist
 from adapters.sql.models.base import BaseModel
 from adapters.sql.models.mixins import TitleMixin
-
 
 if TYPE_CHECKING:
     from adapters.sql.models.album import AlbumModel
@@ -33,7 +33,10 @@ class TrackModel(TitleMixin, BaseModel):
         unique=True,
         nullable=False,
     )
-    duration: orm.Mapped[int] = orm.mapped_column(Numeric(3, 0), nullable=False)
+    duration: orm.Mapped[int] = orm.mapped_column(
+        Numeric(3, 0),
+        nullable=False,
+    )
     listens: orm.Mapped[int] = orm.mapped_column(
         BigInteger(),
         nullable=False,
@@ -49,13 +52,8 @@ class TrackModel(TitleMixin, BaseModel):
         nullable=False,
         name="album_id",
     )
-    album: orm.Mapped["AlbumModel"] = orm.relationship(
-        lazy="joined",
-        innerjoin=True,
-    )
+    album: orm.Mapped["AlbumModel"] = orm.relationship(lazy="raise")
     artists: orm.Mapped[list["ArtistModel"]] = orm.relationship(
-        lazy="joined",
-        innerjoin=True,  # because at the application level track can`t exists without artist
-        uselist=True,
+        lazy="raise",
         secondary=track_artist,
     )

@@ -1,9 +1,7 @@
 from dataclasses import dataclass, field
-from typing import Self, Type
-from uuid import UUID
 
 from domain.entities.base import BaseEntity
-from domain.entities.track import Track
+from domain.entities.track import TrackItem
 from domain.values.cover_url import CoverUrl
 from domain.values.description import Description
 from domain.values.oid import OID
@@ -12,26 +10,10 @@ from domain.values.title import Title
 
 @dataclass(eq=False, kw_only=True, slots=True)
 class Playlist(BaseEntity):
-    user_oid: UUID
+    user_oid: OID
     title: Title
     cover_url: CoverUrl
     description: Description = field(default=Description(None))
-    tracks: tuple[Track] = field(default_factory=tuple)
-
-    @classmethod
-    def create(
-        cls: Type["Playlist"],
-        user_oid: str,
-        title: str,
-        cover_url: str,
-        description: str | None = None,
-    ) -> Self:
-        return cls(
-            user_oid=OID(user_oid),
-            title=Title(title),
-            cover_url=CoverUrl(cover_url),
-            description=Description(description),
-        )
 
     def change_title(self, title: str) -> None:
         self.title = Title(title)
@@ -44,3 +26,8 @@ class Playlist(BaseEntity):
 
     def clear_description(self) -> None:
         self.description = Description(None)
+
+
+@dataclass(eq=False, kw_only=True, slots=True)
+class PlaylistInfo(Playlist):
+    tracks: tuple[TrackItem] = field(default_factory=tuple)

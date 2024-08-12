@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from domain.entities.playlist import Playlist
+from domain.entities.playlist import Playlist, PlaylistInfo
 from domain.repositories.playlist import PlaylistRepository
 
 
@@ -12,12 +12,16 @@ class PlaylistSqlRepository(PlaylistRepository):
 
     async def get_user_playlists(
         self, user_oid: str, limit: int, offset: int
-    ) -> list[Playlist]: ...
+    ) -> list[Playlist]:
+        raise NotImplementedError
 
-    async def get_user_playlist(
+    async def get_user_playlist_info(
         self, user_oid: str, playlist_oid: str
-    ) -> Playlist | None: ...
+    ) -> PlaylistInfo | None:
+        raise NotImplementedError
 
-    async def upsert(self, playlist: Playlist) -> None: ...
+    async def upsert(self, playlist: Playlist) -> None:
+        raise NotImplementedError
 
-    async def remove_by_oid(self, playlist_oid: str) -> None: ...
+    async def remove_by_oid(self, playlist_oid: str) -> None:
+        raise NotImplementedError

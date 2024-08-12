@@ -1,8 +1,8 @@
 import strawberry
 from strawberry.fastapi import GraphQLRouter
-from .queries import Query
-from .context import get_context
 
+from .context import get_context
+from .queries import Query
 
 router = GraphQLRouter(
     strawberry.Schema(Query),

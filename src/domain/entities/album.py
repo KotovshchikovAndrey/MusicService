@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
-from typing import Self, Type
+from datetime import datetime
 
+from domain.entities.artist import ArtistLink
 from domain.entities.base import BaseEntity
-from domain.entities.track import Track
+from domain.entities.track import TrackItem
 from domain.values.cover_url import CoverUrl
 from domain.values.title import Title
 
@@ -12,24 +12,22 @@ from domain.values.title import Title
 class Album(BaseEntity):
     title: Title
     cover_url: CoverUrl
-    created_at: datetime = field(
-        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None)
-    )
-    tracks: tuple[Track] = field(default_factory=tuple)
-
-    @classmethod
-    def create(
-        cls: Type["Album"],
-        title: str,
-        cover_url: str,
-    ) -> Self:
-        return cls(
-            title=Title(title),
-            cover_url=CoverUrl(cover_url),
-        )
+    created_at: datetime
 
     def change_title(self, title: str) -> None:
         self.title = Title(title)
 
     def change_cover(self, url: str) -> None:
         self.cover_url = CoverUrl(url)
+
+
+@dataclass(eq=False, kw_only=True, slots=True)
+class AlbumInfo(Album):
+    tracks: tuple[TrackItem] = field(default_factory=tuple)
+
+    def get_artists(self) -> set[ArtistLink]:
+        artists = set()
+        for track in self.tracks:
+            artists.update(track.artists)
+
+        return artists

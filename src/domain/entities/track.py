@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Self, Type
 
-from domain.entities.artist import Artist
+from domain.entities.artist import ArtistLink
 from domain.entities.base import BaseEntity
 from domain.values.audio_url import AudioUrl
 from domain.values.cover_url import CoverUrl
@@ -18,26 +17,16 @@ class Track(BaseEntity):
     audio_url: AudioUrl
     duration: Duration
     listens: Listens
-    cover_url: CoverUrl
-    artists: tuple[Artist] = field(default_factory=tuple)
-
-    @classmethod
-    def create(
-        cls: Type["Track"],
-        album_oid: str,
-        title: str,
-        audio_url: str,
-        duration: int,
-        cover_url: str,
-    ) -> Self:
-        return cls(
-            album_oid=OID(album_oid),
-            title=Title(title),
-            audio_url=AudioUrl(audio_url),
-            duration=Duration(duration),
-            listens=Listens(0),
-            cover_url=CoverUrl(cover_url),
-        )
 
     def change_title(self, title: str) -> None:
         self.title = Title(title)
+
+
+@dataclass(eq=False, kw_only=True, slots=True)
+class TrackItem(Track):
+    artists: tuple[ArtistLink] = field(default_factory=tuple)
+
+
+@dataclass(eq=False, kw_only=True, slots=True)
+class ChartedTrack(TrackItem):
+    cover_url: CoverUrl
