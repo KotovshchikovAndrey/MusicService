@@ -33,7 +33,7 @@ class TestTrack:
         album_mock: Album,
     ) -> None:
         track_factory = TrackFactory(
-            album_oid=album_mock.oid.value,
+            album_id=album_mock.id,
             audio_url=audio_url,
             duration=duration,
             title=title,
@@ -41,9 +41,9 @@ class TestTrack:
 
         new_track = track_factory.create()
 
-        assert new_track.oid is not None
+        assert new_track.id is not None
         assert new_track.title.value == title
         assert new_track.duration.value == duration
         assert new_track.audio_url.value == audio_url
-        assert new_track.album_oid == album_mock.oid
+        assert new_track.album_id == album_mock.id
         assert new_track.listens.value == 0

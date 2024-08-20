@@ -14,12 +14,12 @@ class RegisterArtistUseCase(BaseUseCase[RegisterArtistDto, None]):
 
     async def execute(self, data: RegisterArtistDto) -> None:
         async with self._uow as uow:
-            artist = await uow.artists.get_by_oid(data.oid)
+            artist = await uow.artists.get_by_id(data.id)
             if artist is not None:
                 raise ConflictException("Artist already exists")
 
         artist_factory = ArtistFactory(
-            user_oid=data.oid,
+            user_id=data.id,
             nickname=data.nickname,
             avatar_url=consts.DEFAULT_ARTIST_AVATAR,
         )

@@ -1,4 +1,5 @@
 from io import BytesIO
+from uuid import uuid4
 
 import pytest
 
@@ -25,7 +26,7 @@ class TestListenTrackUseCase:
             chunk_size=1024,
         )
 
-        data = ListenTrackDto(oid=track_mock.oid.value)
+        data = ListenTrackDto(id=track_mock.id.hex)
         output = await usecase.execute(data=data)
 
         buffer = BytesIO()
@@ -36,7 +37,6 @@ class TestListenTrackUseCase:
 
     async def test_track_not_found(
         self,
-        random_oid_mock: str,
         uow_mock: UnitOfWork,
         blob_storage_mock: BlobStorage,
         track_repository_mock: TrackRepository,
@@ -47,7 +47,7 @@ class TestListenTrackUseCase:
             chunk_size=1024,
         )
 
-        track_repository_mock.get_by_oid.return_value = None
+        track_repository_mock.get_by_id.return_value = None
         with pytest.raises(NotFoundException):
-            data = ListenTrackDto(oid=random_oid_mock)
+            data = ListenTrackDto(id=uuid4())
             await usecase.execute(data=data)

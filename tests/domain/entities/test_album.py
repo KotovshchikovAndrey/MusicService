@@ -15,7 +15,7 @@ class TestAlbum:
             album_factory = AlbumFactory(title=title, cover_url=cover_url)
             new_album = album_factory.create()
 
-            assert new_album.oid is not None
+            assert new_album.id is not None
             assert new_album.created_at is not None
             assert new_album.created_at == datetime_mock
 

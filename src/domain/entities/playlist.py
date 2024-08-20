@@ -1,16 +1,16 @@
 from dataclasses import dataclass, field
+from uuid import UUID
 
 from domain.entities.base import BaseEntity
 from domain.entities.track import TrackItem
 from domain.values.cover_url import CoverUrl
 from domain.values.description import Description
-from domain.values.oid import OID
 from domain.values.title import Title
 
 
 @dataclass(eq=False, kw_only=True, slots=True)
 class Playlist(BaseEntity):
-    user_oid: OID
+    user_id: UUID
     title: Title
     cover_url: CoverUrl
     description: Description = field(default=Description(None))

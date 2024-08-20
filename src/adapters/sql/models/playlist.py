@@ -8,16 +8,18 @@ from adapters.sql.models.track import TrackModel
 
 
 class PlaylistModel(TitleMixin, CoverUrlMixin, BaseModel):
-    user_oid: orm.Mapped[str] = orm.mapped_column(
+    user_id: orm.Mapped[str] = orm.mapped_column(
         UUID(as_uuid=False),
         nullable=False,
         index=True,
         name="user_id",
     )
+
     description: orm.Mapped[str | None] = orm.mapped_column(
         Text(),
         nullable=True,
     )
+
     tracks: orm.Mapped[list["TrackModel"]] = orm.relationship(
         lazy="raise",
         secondary=track_in_playlist,

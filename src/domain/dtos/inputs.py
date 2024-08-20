@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Iterable
+from uuid import UUID
 
 from domain.common.exceptions import BadRequestException
 from domain.dtos.mixins import LimitMixin, OidMixin, PageMixin
@@ -32,13 +33,13 @@ class RegisterArtistDto(OidMixin):
 class UploadTrackDto:
     title: str
     duration: int
-    album_oid: str
+    album_id: UUID
     audio_filename: str
-    artist_oids: set[str] = field(default_factory=set)
+    artist_ids: set[UUID] = field(default_factory=set)
 
     def __post_init__(self) -> None:
-        if not self.artist_oids:
-            raise BadRequestException("Not specified 'artist_oids'")
+        if not self.artist_ids:
+            raise BadRequestException("Not specified 'artist_ids'")
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)

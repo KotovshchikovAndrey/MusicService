@@ -14,7 +14,7 @@ class UpdateArtistUseCase(BaseUseCase[UpdateArtistDto, ArtistDto]):
 
     async def execute(self, data: UpdateArtistDto) -> ArtistDto:
         async with self._uow as uow:
-            artist = await uow.artists.get_by_oid(data.oid)
+            artist = await uow.artists.get_by_id(data.id)
             if artist is None:
                 raise NotFoundException()
 

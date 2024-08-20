@@ -1,4 +1,5 @@
 from typing import Iterable
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
@@ -17,8 +18,8 @@ class ArtistSqlRepository(ArtistRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def get_by_oid(self, artist_oid: str) -> Artist | None:
-        stmt = select(ArtistModel).where(ArtistModel.oid == artist_oid)
+    async def get_by_id(self, artist_id: UUID) -> Artist | None:
+        stmt = select(ArtistModel).where(ArtistModel.id == artist_id)
         model = await self._session.scalar(stmt)
         if model is not None:
             return map_to_artist(model)
@@ -33,8 +34,8 @@ class ArtistSqlRepository(ArtistRepository):
         total_count: int = await self._session.scalar(stmt)
         return total_count
 
-    async def filter_by_oids(self, artist_oids: Iterable[str]) -> list[Artist]:
-        stmt = select(ArtistModel).where(ArtistModel.oid.in_(artist_oids))
+    async def filter_by_ids(self, artist_ids: Iterable[UUID]) -> list[Artist]:
+        stmt = select(ArtistModel).where(ArtistModel.id.in_(artist_ids))
         models = await self._session.scalars(stmt)
         return [map_to_artist(model) for model in models]
 
@@ -42,7 +43,7 @@ class ArtistSqlRepository(ArtistRepository):
         model = map_to_artist_model(artist)
         stmt = insert(ArtistModel).values(model.get_values_to_upsert())
         stmt = stmt.on_conflict_do_update(
-            index_elements=[ArtistModel.oid],
+            index_elements=[ArtistModel.id],
             set_=dict(stmt.excluded),
         )
 

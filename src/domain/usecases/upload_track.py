@@ -1,6 +1,7 @@
 import hashlib
 from io import BytesIO
 from typing import Iterable, NewType
+from uuid import UUID
 
 from domain.common.exceptions import BadRequestException
 from domain.dtos.inputs import UploadTrackDto
@@ -12,10 +13,10 @@ from domain.utils.blob import BlobStorage
 from domain.utils.moderation import ModerationServiceAdapter
 from domain.utils.uow import UnitOfWork
 
-TrackOid = NewType("TrackOid", str)
+type TrackId = UUID
 
 
-class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackOid]):
+class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackId]):
     _uow: UnitOfWork
     _blob_storage: BlobStorage
     _moderation_service: ModerationServiceAdapter
@@ -30,15 +31,15 @@ class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackOid]):
         self._blob_storage = blob_storage
         self._moderation_service = moderation_service
 
-    async def execute(self, data: UploadTrackDto) -> TrackOid:
+    async def execute(self, data: UploadTrackDto) -> TrackId:
         async with self._uow as uow:
-            album = await uow.albums.get_by_oid(data.album_oid)
+            album = await uow.albums.get_by_id(data.album_id)
             if album is None:
-                raise BadRequestException(f"Album with oid {data.album_oid} not found")
+                raise BadRequestException(f"Album with id {data.album_id} not found")
 
-            artists = await uow.artists.filter_by_oids(data.artist_oids)
-            if len(data.artist_oids) != len(artists):
-                raise BadRequestException("One or more of the 'artist_oids' not found")
+            artists = await uow.artists.filter_by_ids(data.artist_ids)
+            if len(data.artist_ids) != len(artists):
+                raise BadRequestException("One or more of the 'artist_ids' not found")
 
         audio = await self._moderation_service.download_approved_audio(
             filename=data.audio_filename
@@ -48,7 +49,7 @@ class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackOid]):
         audio_url = f"/{hashed_audio}.{data.audio_filename.split(".")[-1]}"
 
         track_factory = TrackFactory(
-            album_oid=album.oid.value,
+            album_id=album.id,
             title=data.title,
             duration=data.duration,
             audio_url=audio_url,
@@ -56,7 +57,7 @@ class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackOid]):
 
         track = track_factory.create()
         await self._save_track(track=track, artists=artists, audio=audio)
-        return track.oid.value
+        return track.id
 
     async def _save_track(
         self,
@@ -64,13 +65,9 @@ class UploadTrackUseCase(BaseUseCase[UploadTrackDto, TrackOid]):
         artists: Iterable[Artist],
         audio: BytesIO,
     ) -> None:
-        artist_oids = tuple(map(lambda artist: artist.oid.value, artists))
+        artist_ids = tuple(map(lambda artist: artist.id, artists))
         async with self._uow as uow:
             await uow.tracks.upsert(track)
-            await uow.tracks.set_artists(
-                track_oid=track.oid.value,
-                artist_oids=artist_oids,
-            )
-
+            await uow.tracks.set_artists(track_id=track.id, artist_ids=artist_ids)
             await self._blob_storage.put(blob_url=track.audio_url.value, blob=audio)
             await uow.commit()

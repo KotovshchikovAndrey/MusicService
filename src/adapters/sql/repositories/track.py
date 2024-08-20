@@ -1,4 +1,5 @@
 from typing import Iterable, Literal
+from uuid import UUID
 
 from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert
@@ -25,8 +26,8 @@ class TrackSqlRepository(TrackRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def get_by_oid(self, track_oid: str) -> Track | None:
-        stmt = select(TrackModel).where(TrackModel.oid == track_oid)
+    async def get_by_id(self, track_id: UUID) -> Track | None:
+        stmt = select(TrackModel).where(TrackModel.id == track_id)
         model = await self._session.scalar(stmt)
         if model is not None:
             return map_to_track(model)
@@ -41,7 +42,7 @@ class TrackSqlRepository(TrackRepository):
                     TrackModel.artists,
                     innerjoin=True,
                 ).load_only(
-                    ArtistModel.oid,
+                    ArtistModel.id,
                     ArtistModel.nickname,
                 ),
                 joinedload(
@@ -70,35 +71,35 @@ class TrackSqlRepository(TrackRepository):
             exclude={
                 "listens",
                 "listens_per_day",
-                "album_oid",
             }
         )
 
         stmt = insert(TrackModel).values(values)
         stmt = stmt.on_conflict_do_update(
-            index_elements=[TrackModel.oid],
-            set_=dict(stmt.excluded),
+            index_elements=[TrackModel.id],
+            set_=values,
         )
 
         await self._session.execute(stmt)
 
-    async def set_artists(self, track_oid: str, artist_oids: Iterable[str]) -> None:
+    async def set_artists(self, track_id: UUID, artist_ids: Iterable[UUID]) -> None:
         track_artist_values = []
-        for artist_oid in artist_oids:
-            track_artist_value = dict(track_id=track_oid, artist_id=artist_oid)
+        for artist_id in artist_ids:
+            track_artist_value = dict(track_id=track_id, artist_id=artist_id)
             track_artist_values.append(track_artist_value)
 
-        stmt = insert(track_artist).values(track_artist_values)
-        stmt = stmt.on_conflict_do_nothing(
-            constraint=consts.TRACK_ARTIST_UNIQUE_CONSTRAINT
+        stmt = (
+            insert(track_artist)
+            .values(track_artist_values)
+            .on_conflict_do_nothing(constraint=consts.TRACK_ARTIST_UNIQUE_CONSTRAINT)
         )
 
         await self._session.execute(stmt)
 
-    async def increment_listens(self, track_oid: str) -> None:
+    async def increment_listens(self, track_id: UUID) -> None:
         stmt = (
             update(TrackModel)
-            .where(TrackModel.oid == track_oid)
+            .where(TrackModel.id == track_id)
             .values(listens=TrackModel.listens + 1)
         )
 

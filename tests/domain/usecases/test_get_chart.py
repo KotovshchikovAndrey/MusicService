@@ -12,12 +12,12 @@ class TestGetChartUseCase:
         tracks = await usecase.execute(GetChartDto(limit=1))
 
         assert len(tracks) == 1
-        assert tracks[0].oid == charted_track_mock.oid.value
+        assert tracks[0].id == charted_track_mock.id
         assert tracks[0].title == charted_track_mock.title.value
         assert tracks[0].audio_url == charted_track_mock.audio_url.value
         assert tracks[0].cover_url == charted_track_mock.cover_url.value
         assert tracks[0].duration == charted_track_mock.duration.value
 
         for index, artist in enumerate(tracks[0].artists):
-            artist.oid == charted_track_mock.artists[index].oid.value
+            artist.id == charted_track_mock.artists[index].id
             artist.nickname == charted_track_mock.artists[index].nickname.value

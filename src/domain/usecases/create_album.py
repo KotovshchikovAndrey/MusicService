@@ -1,5 +1,5 @@
 import hashlib
-from typing import NewType
+from uuid import UUID
 
 from domain.dtos.inputs import CreateAlbumDto
 from domain.factories.album import AlbumFactory
@@ -8,10 +8,10 @@ from domain.utils.blob import BlobStorage
 from domain.utils.moderation import ModerationServiceAdapter
 from domain.utils.uow import UnitOfWork
 
-AlbumOid = NewType("AlbumOid", str)
+type AlbumId = UUID
 
 
-class CreateAlbumUseCase(BaseUseCase[CreateAlbumDto, AlbumOid]):
+class CreateAlbumUseCase(BaseUseCase[CreateAlbumDto, AlbumId]):
     _uow: UnitOfWork
     _blob_storage: BlobStorage
     _moderation_service: ModerationServiceAdapter
@@ -26,7 +26,7 @@ class CreateAlbumUseCase(BaseUseCase[CreateAlbumDto, AlbumOid]):
         self._blob_storage = blob_storage
         self._moderation_service = moderation_service
 
-    async def execute(self, data: CreateAlbumDto) -> AlbumOid:
+    async def execute(self, data: CreateAlbumDto) -> AlbumId:
         cover = await self._moderation_service.download_approved_cover(
             filename=data.cover_filename
         )
@@ -42,4 +42,4 @@ class CreateAlbumUseCase(BaseUseCase[CreateAlbumDto, AlbumOid]):
             await self._blob_storage.put(blob_url=cover_url, blob=cover)
             await uow.commit()
 
-        return album.oid.value
+        return album.id

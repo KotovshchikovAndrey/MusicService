@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
+from uuid import UUID
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class OidMixin:
-    oid: str
+    id: UUID
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)

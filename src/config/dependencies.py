@@ -12,6 +12,7 @@ from domain.usecases.get_chart import GetChartUseCase
 from domain.usecases.get_new_releases import GetNewReleasesUseCase
 from domain.usecases.listen_track import ListenTrackUseCase
 from domain.utils.blob import BlobStorage
+from domain.utils.search import TrackElasticSearch
 from domain.utils.uow import UnitOfWork
 
 database = SqlDatabaseConnection(
@@ -33,6 +34,12 @@ def blob_storage() -> BlobStorage:
         secret_key=settings.blob_storage.secret_key,
         bucket_name=settings.blob_storage.bucket_name,
         use_ssl=settings.blob_storage.use_ssl,
+    )
+
+
+def track_elastic_search() -> TrackElasticSearch:
+    return TrackElasticSearch(
+        index_url=f"http://{settings.search.host}:{settings.search.port}/{settings.search.track_index}"
     )
 
 

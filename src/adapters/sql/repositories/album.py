@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,16 +42,14 @@ class AlbumSqlRepository(AlbumRepository):
         models = result.unique().scalars()
         return [map_to_album_info(model) for model in models]
 
-    async def get_by_oid(self, album_oid: str) -> Album | None:
-        stmt = select(AlbumModel).where(AlbumModel.oid == album_oid)
+    async def get_by_id(self, album_id: UUID) -> Album | None:
+        stmt = select(AlbumModel).where(AlbumModel.id == album_id)
         model = await self._session.scalar(stmt)
         if model is not None:
             return map_to_album(model)
 
-    async def check_exists(self, album_oid: str) -> bool:
-        stmt = select(
-            select(AlbumModel.oid).where(AlbumModel.oid == album_oid).exists()
-        )
+    async def check_exists(self, album_id: UUID) -> bool:
+        stmt = select(select(AlbumModel.id).where(AlbumModel.id == album_id).exists())
 
         result = await self._session.scalar(stmt)
         return bool(result)
@@ -58,7 +58,7 @@ class AlbumSqlRepository(AlbumRepository):
         model = map_to_album_model(album)
         stmt = insert(AlbumModel).values(model.get_values_to_upsert())
         stmt = stmt.on_conflict_do_update(
-            index_elements=[AlbumModel.oid],
+            index_elements=[AlbumModel.id],
             set_=dict(stmt.excluded),
         )
 

@@ -23,7 +23,7 @@ class ListenTrackUseCase(BaseUseCase[ListenTrackDto, AudioStreamDto]):
 
     async def execute(self, data: ListenTrackDto) -> AudioStreamDto:
         async with self._uow as uow:
-            track = await uow.tracks.get_by_oid(data.oid)
+            track = await uow.tracks.get_by_id(data.id)
             if track is None:
                 raise NotFoundException("Track not found")
 

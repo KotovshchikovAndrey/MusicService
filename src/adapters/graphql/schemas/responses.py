@@ -10,7 +10,7 @@ from adapters.graphql.schemas.exceptions import (
 
 @strawberry.type
 class ArtistLinkSchema:
-    oid: strawberry.ID
+    id: strawberry.ID
     nickname: str
 
 
@@ -21,7 +21,7 @@ class ArtistSchema(ArtistLinkSchema):
 
 @strawberry.type
 class TrackSchema:
-    oid: strawberry.ID
+    id: strawberry.ID
     title: str
     audio_url: str
     duration: str
@@ -39,7 +39,7 @@ class ChartedTrackSchema(TrackItemSchema):
 
 @strawberry.type
 class AlbumSchema:
-    oid: strawberry.ID
+    id: strawberry.ID
     title: str
     cover_url: str
     created_at: str

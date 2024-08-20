@@ -1,12 +1,13 @@
+from uuid import UUID
+
 from sqlalchemy import orm
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 
 
 class BaseModel(orm.DeclarativeBase):
-    oid: orm.Mapped[str] = orm.mapped_column(
-        UUID(as_uuid=False),
+    id: orm.Mapped[UUID] = orm.mapped_column(
+        PGUUID(as_uuid=True),
         primary_key=True,
-        name="id",
     )
 
     @orm.declared_attr.directive
@@ -16,7 +17,7 @@ class BaseModel(orm.DeclarativeBase):
     def get_values_to_upsert(self, exclude: set[str] | None = None) -> dict:
         values = dict()
         for column in self.__table__.columns:
-            model_field_name = column.name.replace("id", "oid")
+            model_field_name = column.name
             if exclude is not None and model_field_name in exclude:
                 continue
 

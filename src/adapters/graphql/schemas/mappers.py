@@ -16,14 +16,14 @@ from domain.dtos.outputs import (
 
 def map_to_artist_link_schema(artist: ArtistLinkDto) -> ArtistLinkSchema:
     return ArtistLinkSchema(
-        oid=artist.oid,
+        id=artist.id,
         nickname=artist.nickname,
     )
 
 
 def map_to_artist_schema(artist: ArtistDto) -> ArtistLinkSchema:
     return ArtistSchema(
-        oid=artist.oid,
+        id=artist.id,
         nickname=artist.nickname,
         avatar_url=artist.avatar_url,
     )
@@ -31,7 +31,7 @@ def map_to_artist_schema(artist: ArtistDto) -> ArtistLinkSchema:
 
 def map_to_charted_track_schema(track: ChartedTrackDto) -> ChartedTrackSchema:
     return ChartedTrackSchema(
-        oid=track.oid,
+        id=track.id,
         title=track.title,
         duration=track.duration,
         audio_url=track.audio_url,
@@ -42,7 +42,7 @@ def map_to_charted_track_schema(track: ChartedTrackDto) -> ChartedTrackSchema:
 
 def map_to_track_item_schema(track: TrackItemDto) -> TrackItemSchema:
     return TrackItemSchema(
-        oid=track.oid,
+        id=track.id,
         title=track.title,
         audio_url=track.audio_url,
         duration=track.duration,
@@ -52,7 +52,7 @@ def map_to_track_item_schema(track: TrackItemDto) -> TrackItemSchema:
 
 def map_to_album_info_schema(album: AlbumInfoDto) -> AlbumInfoSchema:
     return AlbumInfoSchema(
-        oid=album.oid,
+        id=album.id,
         title=album.title,
         created_at=album.created_at,
         cover_url=album.cover_url,

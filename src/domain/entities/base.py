@@ -1,18 +1,17 @@
 from abc import ABC
 from dataclasses import dataclass, field
-
-from domain.values.oid import OID
+from uuid import UUID, uuid4
 
 
 @dataclass(eq=False, kw_only=True, slots=True)
 class BaseEntity(ABC):
-    oid: OID = field(default_factory=OID.generate)
+    id: UUID = field(default_factory=uuid4)
 
     def __hash__(self) -> int:
-        return hash(self.oid)
+        return hash(self.id)
 
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, BaseEntity):
             return False
 
-        return self.oid == value.oid
+        return self.id == value.id

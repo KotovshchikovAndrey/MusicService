@@ -12,14 +12,14 @@ from domain.entities.track import ChartedTrack, TrackItem
 
 def map_to_artist_link_dto(artist: Artist) -> ArtistDto:
     return ArtistLinkDto(
-        oid=artist.oid.value,
+        id=artist.id,
         nickname=artist.nickname.value,
     )
 
 
 def map_to_artist_dto(artist: Artist) -> ArtistDto:
     return ArtistDto(
-        oid=artist.oid.value,
+        id=artist.id,
         nickname=artist.nickname.value,
         avatar_url=artist.avatar_url.value,
     )
@@ -27,7 +27,7 @@ def map_to_artist_dto(artist: Artist) -> ArtistDto:
 
 def map_to_track_item_dto(track: TrackItem) -> TrackItemDto:
     return TrackItemDto(
-        oid=track.oid.value,
+        id=track.id,
         title=track.title.value,
         audio_url=track.audio_url.value,
         duration=track.duration.value,
@@ -37,7 +37,7 @@ def map_to_track_item_dto(track: TrackItem) -> TrackItemDto:
 
 def map_to_album_info_dto(album: AlbumInfo) -> AlbumInfoDto:
     return AlbumInfoDto(
-        oid=album.oid.value,
+        id=album.id,
         title=album.title.value,
         cover_url=album.cover_url.value,
         created_at=album.created_at.isoformat(),
@@ -47,7 +47,7 @@ def map_to_album_info_dto(album: AlbumInfo) -> AlbumInfoDto:
 
 def map_to_charted_track_dto(track: ChartedTrack) -> ChartedTrackDto:
     return ChartedTrackDto(
-        oid=track.oid.value,
+        id=track.id,
         title=track.title.value,
         audio_url=track.audio_url.value,
         duration=track.duration.value,

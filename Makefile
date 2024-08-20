@@ -1,8 +1,9 @@
 server:
 	poetry run start
 
-postgres:
-	docker exec -it postgres bash -c "psql -U postgres -d music_db"
+psql:
+	docker exec -it postgres bash -c \
+	"psql postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB_NAME}"
 
 minio:
 	docker exec -it minio bash

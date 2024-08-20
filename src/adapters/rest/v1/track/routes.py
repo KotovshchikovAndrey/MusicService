@@ -7,9 +7,9 @@ from domain.dtos.inputs import ListenTrackDto
 router = APIRouter(prefix="/tracks")
 
 
-@router.get("/{track_oid:str}/listen")
+@router.get("/{track_id:str}/listen")
 async def listen_track(
-    track_oid: str,
+    track_id: str,
     request: Request,
     usecase: ListenTrackDependency,
 ):
@@ -23,7 +23,7 @@ async def listen_track(
         if end_range:
             end_byte = int(end_range) + 1
 
-    data = ListenTrackDto(oid=track_oid, start_byte=start_byte, end_byte=end_byte)
+    data = ListenTrackDto(id=track_id, start_byte=start_byte, end_byte=end_byte)
     output = await usecase.execute(data=data)
 
     return StreamingResponse(

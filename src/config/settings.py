@@ -36,6 +36,12 @@ class DatabaseSettings(Settings):
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/test_{self.db_name}"
 
 
+class SearchSettings(Settings):
+    host: Annotated[str, Field(alias="ELASTIC_SEARCH_HOST")]
+    port: Annotated[int, Field(alias="ELASTIC_SEARCH_PORT")]
+    track_index: Annotated[str, Field(alias="ELASTIC_SEARCH_TRACK_INDEX")]
+
+
 class AppSettings(BaseModel):
     server_host: Annotated[str, Field(alias="SERVER_HOST", default="127.0.0.1")]
     server_port: Annotated[int, Field(alias="SERVER_PORT", default=8000)]
@@ -43,6 +49,7 @@ class AppSettings(BaseModel):
 
     database: DatabaseSettings = DatabaseSettings()
     blob_storage: BlobStorageSettings = BlobStorageSettings()
+    search: SearchSettings = SearchSettings()
 
 
 settings = AppSettings()
