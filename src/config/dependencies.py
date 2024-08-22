@@ -21,8 +21,13 @@ database = SqlDatabaseConnection(
 )
 
 
+async def get_session():
+    async with database.get_session() as session:
+        yield session
+
+
 async def unit_of_work(
-    session: Annotated[AsyncSession, Depends(database.get_session)]
+    session: Annotated[AsyncSession, Depends(get_session)]
 ) -> UnitOfWork:
     return SqlUnitOfWork(session=session)
 

@@ -1,4 +1,5 @@
 from asyncio import current_task
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Self, Type
 
 from sqlalchemy.ext.asyncio import (
@@ -35,10 +36,13 @@ class SqlDatabaseConnection:
             expire_on_commit=False,
         )
 
+    @asynccontextmanager
     async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
         session = self._get_scoped_session()
-        yield session
-        await session.remove()
+        try:
+            yield session
+        finally:
+            await session.remove()
 
     async def close(self) -> None:
         await self._engine.dispose()

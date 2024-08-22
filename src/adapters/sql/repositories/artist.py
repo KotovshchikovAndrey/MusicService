@@ -41,10 +41,12 @@ class ArtistSqlRepository(ArtistRepository):
 
     async def upsert(self, artist: Artist) -> None:
         model = map_to_artist_model(artist)
-        stmt = insert(ArtistModel).values(model.get_values_to_upsert())
+        values = model.get_values_to_upsert()
+
+        stmt = insert(ArtistModel).values(values)
         stmt = stmt.on_conflict_do_update(
             index_elements=[ArtistModel.id],
-            set_=dict(stmt.excluded),
+            set_=values,
         )
 
         await self._session.execute(stmt)

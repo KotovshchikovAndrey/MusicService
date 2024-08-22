@@ -56,10 +56,12 @@ class AlbumSqlRepository(AlbumRepository):
 
     async def upsert(self, album: Album) -> None:
         model = map_to_album_model(album)
-        stmt = insert(AlbumModel).values(model.get_values_to_upsert())
+        values = model.get_values_to_upsert()
+
+        stmt = insert(AlbumModel).values(values)
         stmt = stmt.on_conflict_do_update(
             index_elements=[AlbumModel.id],
-            set_=dict(stmt.excluded),
+            set_=values,
         )
 
         await self._session.execute(stmt)

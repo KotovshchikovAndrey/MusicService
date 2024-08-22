@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import Protocol
 
 from fastapi import FastAPI
@@ -19,6 +20,7 @@ class FastApiAppFactory(ASGIAppFactory):
         app.include_router(graphql_router)
         return app
 
+    @asynccontextmanager
     async def _lifespan(self, app: FastAPI):
         yield
         await database.close()
