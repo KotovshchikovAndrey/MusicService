@@ -6,7 +6,8 @@ from starlette.types import ASGIApp
 
 from adapters.graphql import router as graphql_router
 from adapters.rest.v1 import router as v1_router
-from config.dependencies import database
+from adapters.sql.connection import SqlDatabaseConnection
+from config.ioc_container import container
 
 
 class ASGIAppFactory(Protocol):
@@ -22,5 +23,6 @@ class FastApiAppFactory(ASGIAppFactory):
 
     @asynccontextmanager
     async def _lifespan(self, app: FastAPI):
+        database = container.resolve(SqlDatabaseConnection)
         yield
         await database.close()

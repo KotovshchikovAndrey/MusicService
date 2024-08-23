@@ -1,18 +1,15 @@
 from fastapi import APIRouter, Request, status
 from fastapi.responses import StreamingResponse
 
-from config.dependencies import ListenTrackDependency
+from config.ioc_container import container
 from domain.dtos.inputs import ListenTrackDto
+from domain.usecases.listen_track import ListenTrackUseCase
 
 router = APIRouter(prefix="/tracks")
 
 
 @router.get("/{track_id:str}/listen")
-async def listen_track(
-    track_id: str,
-    request: Request,
-    usecase: ListenTrackDependency,
-):
+async def listen_track(track_id: str, request: Request):
     start_byte = 0
     end_byte = None
 
@@ -23,6 +20,7 @@ async def listen_track(
         if end_range:
             end_byte = int(end_range) + 1
 
+    usecase = container.resolve(ListenTrackUseCase)
     data = ListenTrackDto(id=track_id, start_byte=start_byte, end_byte=end_byte)
     output = await usecase.execute(data=data)
 

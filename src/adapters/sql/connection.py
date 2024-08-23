@@ -1,6 +1,5 @@
 from asyncio import current_task
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Self, Type
+from typing import Self, Type
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -23,11 +22,7 @@ class SqlDatabaseConnection:
 
         return cls._instance
 
-    def __init__(
-        self,
-        connection_url: str,
-        echo: bool = True,
-    ) -> None:
+    def __init__(self, connection_url: str, echo: bool) -> None:
         self._engine = create_async_engine(url=connection_url, echo=echo)
         self._session_factory = async_sessionmaker(
             bind=self._engine,
@@ -36,21 +31,13 @@ class SqlDatabaseConnection:
             expire_on_commit=False,
         )
 
-    @asynccontextmanager
-    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
-        session = self._get_scoped_session()
-        try:
-            yield session
-        finally:
-            await session.remove()
-
-    async def close(self) -> None:
-        await self._engine.dispose()
-
-    def _get_scoped_session(self) -> async_scoped_session[AsyncSession]:
+    def get_scoped_session(self) -> async_scoped_session[AsyncSession]:
         session = async_scoped_session(
             session_factory=self._session_factory,
             scopefunc=current_task,
         )
 
         return session
+
+    async def close(self) -> None:
+        await self._engine.dispose()

@@ -1,8 +1,5 @@
-from typing import Any
-
 import strawberry
 
-from adapters.graphql.context import GraphqlContext
 from adapters.graphql.schemas.exceptions import (
     InvalidLimitParamException,
     InvalidPageParamException,
@@ -21,45 +18,43 @@ from adapters.graphql.schemas.responses import (
     NewReleasesSuccess,
     PaginationSchema,
 )
+from config.ioc_container import container
 from domain.dtos.inputs import GetArtistsDto, GetChartDto, GetNewReleasesDto
+from domain.usecases.get_artists import GetArtistsUseCase
+from domain.usecases.get_chart import GetChartUseCase
+from domain.usecases.get_new_releases import GetNewReleasesUseCase
 
 
 @strawberry.type
 class Query:
     @strawberry.field
-    async def chart(
-        self, limit: int, info: strawberry.Info[GraphqlContext, Any]
-    ) -> ChartResponse:
+    async def chart(self, limit: int) -> ChartResponse:
         if limit <= 0:
             return InvalidLimitParamException()
 
-        usecase = info.context.get_chart
+        usecase = container.resolve(GetChartUseCase)
         tracks = await usecase.execute(GetChartDto(limit=limit))
         return ChartSuccess(
             tracks=[map_to_charted_track_schema(track) for track in tracks]
         )
 
     @strawberry.field
-    async def new_releases(
-        self, limit: int, info: strawberry.Info[GraphqlContext, Any]
-    ) -> NewReleasesResponse:
+    async def new_releases(self, limit: int) -> NewReleasesResponse:
         if limit <= 0:
             return InvalidLimitParamException()
 
-        usecase = info.context.get_new_releases
+        usecase = container.resolve(GetNewReleasesUseCase)
         albums = await usecase.execute(GetNewReleasesDto(limit=limit))
         return NewReleasesSuccess(
             albums=[map_to_album_info_schema(album) for album in albums]
         )
 
     @strawberry.field
-    async def artists(
-        self, page: int, info: strawberry.Info[GraphqlContext, Any]
-    ) -> ArtistsResponse:
+    async def artists(self, page: int) -> ArtistsResponse:
         if page <= 0:
             return InvalidPageParamException()
 
-        usecase = info.context.get_artists
+        usecase = container.resolve(GetArtistsUseCase)
         output = await usecase.execute(GetArtistsDto(page=page))
         return ArtistsSuccess(
             artists=[map_to_artist_schema(artist) for artist in output.artists],
