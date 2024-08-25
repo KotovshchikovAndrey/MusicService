@@ -1,4 +1,4 @@
-from adapters.graphql.schemas.responses import (
+from adapters.driving.graphql.schemas.responses import (
     AlbumInfoSchema,
     ArtistLinkSchema,
     ArtistSchema,

@@ -2,7 +2,7 @@ from typing import Annotated
 
 import strawberry
 
-from adapters.graphql.schemas.exceptions import (
+from adapters.driving.graphql.schemas.exceptions import (
     InvalidLimitParamException,
     InvalidPageParamException,
 )

@@ -1,10 +1,10 @@
 from typing import Self
 
-from adapters.sql.connection import SqlDatabaseConnection
-from adapters.sql.repositories.album import AlbumSqlRepository
-from adapters.sql.repositories.artist import ArtistSqlRepository
-from adapters.sql.repositories.playlist import PlaylistSqlRepository
-from adapters.sql.repositories.track import TrackSqlRepository
+from adapters.driven.sql.connection import SqlDatabaseConnection
+from adapters.driven.sql.repositories.album import AlbumSqlRepository
+from adapters.driven.sql.repositories.artist import ArtistSqlRepository
+from adapters.driven.sql.repositories.playlist import PlaylistSqlRepository
+from adapters.driven.sql.repositories.track import TrackSqlRepository
 from domain.utils.uow import UnitOfWork
 
 

@@ -1,14 +1,15 @@
 from punq import Container
 
-from adapters.s3.blob import S3BlobStorage
-from adapters.sql.connection import SqlDatabaseConnection
-from adapters.sql.uow import SqlUnitOfWork
+from adapters.driven.s3.blob_storage import S3BlobStorage
+from adapters.driven.sql.connection import SqlDatabaseConnection
+from adapters.driven.sql.uow import SqlUnitOfWork
 from config.settings import settings
 from domain.usecases.get_artists import GetArtistsUseCase
 from domain.usecases.get_chart import GetChartUseCase
 from domain.usecases.get_new_releases import GetNewReleasesUseCase
 from domain.usecases.listen_track import ListenTrackUseCase
-from domain.utils.blob import BlobStorage
+from domain.usecases.register_artist import RegisterArtistUseCase
+from domain.utils.blob_storage import BlobStorage
 from domain.utils.uow import UnitOfWork
 
 container = Container()
@@ -53,3 +54,5 @@ container.register(
     ListenTrackUseCase,
     chunk_size=settings.blob_storage.chunk_size,
 )
+
+container.register(RegisterArtistUseCase, RegisterArtistUseCase)

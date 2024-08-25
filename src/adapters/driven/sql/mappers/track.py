@@ -1,5 +1,5 @@
-from adapters.sql.mappers.artist import map_to_artist_link
-from adapters.sql.models.track import TrackModel
+from adapters.driven.sql.mappers.artist import map_to_artist_link
+from adapters.driven.sql.models.track import TrackModel
 from domain.entities.track import ChartedTrack, Track, TrackItem
 from domain.values.audio_url import AudioUrl
 from domain.values.cover_url import CoverUrl

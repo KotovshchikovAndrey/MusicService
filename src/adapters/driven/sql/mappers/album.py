@@ -1,7 +1,7 @@
 from datetime import UTC
 
-from adapters.sql.mappers.track import map_to_track_item
-from adapters.sql.models.album import AlbumModel
+from adapters.driven.sql.mappers.track import map_to_track_item
+from adapters.driven.sql.models.album import AlbumModel
 from domain.entities.album import Album, AlbumInfo
 from domain.values.cover_url import CoverUrl
 from domain.values.title import Title

@@ -5,13 +5,13 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from adapters.sql.mappers.album import (
+from adapters.driven.sql.mappers.album import (
     map_to_album,
     map_to_album_info,
     map_to_album_model,
 )
-from adapters.sql.models.album import AlbumModel
-from adapters.sql.models.track import TrackModel
+from adapters.driven.sql.models.album import AlbumModel
+from adapters.driven.sql.models.track import TrackModel
 from domain.entities.album import Album, AlbumInfo
 from domain.repositories.album import AlbumRepository
 

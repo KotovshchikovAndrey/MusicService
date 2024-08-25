@@ -4,9 +4,9 @@ from typing import Protocol
 from fastapi import FastAPI
 from starlette.types import ASGIApp
 
-from adapters.graphql import router as graphql_router
-from adapters.rest.v1 import router as v1_router
-from adapters.sql.connection import SqlDatabaseConnection
+from adapters.driven.sql.connection import SqlDatabaseConnection
+from adapters.driving.graphql import router as graphql_router
+from adapters.driving.rest.v1 import router as v1_router
 from config.ioc_container import container
 
 

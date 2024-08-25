@@ -1,15 +1,15 @@
 import strawberry
 
-from adapters.graphql.schemas.exceptions import (
+from adapters.driving.graphql.schemas.exceptions import (
     InvalidLimitParamException,
     InvalidPageParamException,
 )
-from adapters.graphql.schemas.mappers import (
+from adapters.driving.graphql.schemas.mappers import (
     map_to_album_info_schema,
     map_to_artist_schema,
     map_to_charted_track_schema,
 )
-from adapters.graphql.schemas.responses import (
+from adapters.driving.graphql.schemas.responses import (
     ArtistsResponse,
     ArtistsSuccess,
     ChartResponse,

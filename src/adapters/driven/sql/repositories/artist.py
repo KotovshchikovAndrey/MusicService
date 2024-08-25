@@ -6,8 +6,8 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
 
-from adapters.sql.mappers.artist import map_to_artist, map_to_artist_model
-from adapters.sql.models.artist import ArtistModel
+from adapters.driven.sql.mappers.artist import map_to_artist, map_to_artist_model
+from adapters.driven.sql.models.artist import ArtistModel
 from domain.entities.artist import Artist
 from domain.repositories.artist import ArtistRepository
 

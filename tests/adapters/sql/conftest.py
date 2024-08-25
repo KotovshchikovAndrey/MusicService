@@ -1,12 +1,10 @@
-import logging
-
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from adapters.sql.models import BaseModel
-from adapters.sql.models.album import AlbumModel
-from adapters.sql.models.artist import ArtistModel
-from adapters.sql.models.track import TrackModel
+from adapters.driven.sql.models import BaseModel
+from adapters.driven.sql.models.album import AlbumModel
+from adapters.driven.sql.models.artist import ArtistModel
+from adapters.driven.sql.models.track import TrackModel
 from config.settings import settings
 from domain.entities.album import Album
 from domain.entities.artist import Artist

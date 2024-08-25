@@ -2,7 +2,7 @@ from domain.common.exceptions import NotFoundException
 from domain.dtos.inputs import ListenTrackDto
 from domain.dtos.outputs import AudioStreamDto
 from domain.usecases.base import BaseUseCase
-from domain.utils.blob import BlobStorage
+from domain.utils.blob_storage import BlobStorage
 from domain.utils.uow import UnitOfWork
 
 

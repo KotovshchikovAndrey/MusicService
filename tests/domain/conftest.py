@@ -10,7 +10,7 @@ from domain.entities.track import ChartedTrack, Track
 from domain.repositories.album import AlbumRepository
 from domain.repositories.artist import ArtistRepository
 from domain.repositories.track import TrackRepository
-from domain.utils.blob import BlobStorage
+from domain.utils.blob_storage import BlobStorage
 from domain.utils.moderation import ModerationServiceAdapter
 from domain.utils.uow import UnitOfWork
 

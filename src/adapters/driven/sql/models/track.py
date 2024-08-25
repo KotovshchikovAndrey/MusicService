@@ -11,14 +11,14 @@ from sqlalchemy import (
     orm,
 )
 
-from adapters.sql import consts
-from adapters.sql.models.artist import ArtistModel
-from adapters.sql.models.associations import track_artist
-from adapters.sql.models.base import BaseModel
-from adapters.sql.models.mixins import TitleMixin
+from adapters.driven.sql import consts
+from adapters.driven.sql.models.artist import ArtistModel
+from adapters.driven.sql.models.associations import track_artist
+from adapters.driven.sql.models.base import BaseModel
+from adapters.driven.sql.models.mixins import TitleMixin
 
 if TYPE_CHECKING:
-    from adapters.sql.models.album import AlbumModel
+    from adapters.driven.sql.models.album import AlbumModel
 
 
 class TrackModel(TitleMixin, BaseModel):

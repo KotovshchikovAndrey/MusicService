@@ -1,6 +1,6 @@
 from sqlalchemy import String, orm
 
-from adapters.sql.models.base import BaseModel
+from adapters.driven.sql.models.base import BaseModel
 
 
 class ArtistModel(BaseModel):

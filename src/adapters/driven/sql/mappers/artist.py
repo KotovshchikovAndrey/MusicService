@@ -1,4 +1,4 @@
-from adapters.sql.models.artist import ArtistModel
+from adapters.driven.sql.models.artist import ArtistModel
 from domain.entities.artist import Artist, ArtistLink
 from domain.values.avatar_url import AvatarUrl
 from domain.values.nickname import Nickname

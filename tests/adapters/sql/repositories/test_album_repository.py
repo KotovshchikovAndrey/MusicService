@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from adapters.sql.repositories.album import AlbumSqlRepository
+from adapters.driven.sql.repositories.album import AlbumSqlRepository
 from domain.entities.album import Album
 
 

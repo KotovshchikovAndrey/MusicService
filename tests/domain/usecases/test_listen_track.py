@@ -8,7 +8,7 @@ from domain.dtos.inputs import ListenTrackDto
 from domain.entities.track import Track
 from domain.repositories.track import TrackRepository
 from domain.usecases.listen_track import ListenTrackUseCase
-from domain.utils.blob import BlobStorage
+from domain.utils.blob_storage import BlobStorage
 from domain.utils.uow import UnitOfWork
 
 

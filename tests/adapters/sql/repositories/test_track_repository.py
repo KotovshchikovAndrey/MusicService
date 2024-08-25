@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from adapters.sql.models.track import TrackModel
-from adapters.sql.repositories.track import TrackSqlRepository
+from adapters.driven.sql.models.track import TrackModel
+from adapters.driven.sql.repositories.track import TrackSqlRepository
 from domain.entities.album import Album
 from domain.entities.artist import Artist
 from domain.entities.track import Track

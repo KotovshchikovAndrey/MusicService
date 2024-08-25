@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Table, UniqueConstraint, text
 
-from adapters.sql import consts
-from adapters.sql.models.base import BaseModel
+from adapters.driven.sql import consts
+from adapters.driven.sql.models.base import BaseModel
 
 track_artist = Table(
     "track_artist",

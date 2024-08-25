@@ -4,7 +4,7 @@ from uuid import UUID
 from domain.dtos.inputs import CreateAlbumDto
 from domain.factories.album import AlbumFactory
 from domain.usecases.base import BaseUseCase
-from domain.utils.blob import BlobStorage
+from domain.utils.blob_storage import BlobStorage
 from domain.utils.moderation import ModerationServiceAdapter
 from domain.utils.uow import UnitOfWork
 

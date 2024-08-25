@@ -1,5 +1,5 @@
 server:
-	poetry run start
+	python src/index.py
 
 psql:
 	docker exec -it postgres bash -c \
@@ -13,3 +13,6 @@ minio:
 format:
 	isort .
 	black .
+
+consume:
+	faststream run src/adapters/driving/rabbitmq/index:app

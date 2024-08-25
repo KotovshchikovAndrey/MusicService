@@ -6,16 +6,16 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from adapters.sql import consts
-from adapters.sql.mappers.track import (
+from adapters.driven.sql import consts
+from adapters.driven.sql.mappers.track import (
     map_to_charted_track,
     map_to_track,
     map_to_track_model,
 )
-from adapters.sql.models.album import AlbumModel
-from adapters.sql.models.artist import ArtistModel
-from adapters.sql.models.associations import track_artist
-from adapters.sql.models.track import TrackModel
+from adapters.driven.sql.models.album import AlbumModel
+from adapters.driven.sql.models.artist import ArtistModel
+from adapters.driven.sql.models.associations import track_artist
+from adapters.driven.sql.models.track import TrackModel
 from domain.entities.track import ChartedTrack, Track
 from domain.repositories.track import TrackRepository
 

@@ -42,6 +42,18 @@ class SearchSettings(Settings):
     track_index: Annotated[str, Field(alias="ELASTIC_SEARCH_TRACK_INDEX")]
 
 
+class BrokerSettings(Settings):
+    host: Annotated[str, Field(alias="RABBITMQ_HOST")]
+    port: Annotated[int, Field(alias="RABBITMQ_PORT")]
+    user: Annotated[str, Field(alias="RABBITMQ_USER")]
+    password: Annotated[str, Field(alias="RABBITMQ_PASSWORD")]
+
+    distribution_queue: Annotated[str, Field(alias="RABBITMQ_DISTRIBUTION_QUEUE")]
+
+    def get_connection_url(self) -> str:
+        return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}/"
+
+
 class AppSettings(BaseModel):
     server_host: Annotated[str, Field(alias="SERVER_HOST", default="127.0.0.1")]
     server_port: Annotated[int, Field(alias="SERVER_PORT", default=8000)]
@@ -50,6 +62,7 @@ class AppSettings(BaseModel):
     database: DatabaseSettings = DatabaseSettings()
     blob_storage: BlobStorageSettings = BlobStorageSettings()
     search: SearchSettings = SearchSettings()
+    broker: BrokerSettings = BrokerSettings()
 
 
 settings = AppSettings()
