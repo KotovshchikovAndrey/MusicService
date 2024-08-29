@@ -1,13 +1,14 @@
+import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from adapters.driven.sql.models.track import TrackModel
 from adapters.driven.sql.repositories.track import TrackSqlRepository
+from domain.builders.track import TrackBuilder
 from domain.entities.album import Album
 from domain.entities.artist import Artist
 from domain.entities.track import Track
-from domain.factories.track import TrackFactory
 
 
 class TestTrackSqlRepository:
@@ -31,7 +32,7 @@ class TestTrackSqlRepository:
         old_title = track.title
         new_title = "New title"
         track.change_title(new_title)
-        await repository.upsert(track)
+        await repository.save(track)
 
         updated_track = await repository.get_by_id(track_mock.id)
         assert updated_track is not None
@@ -45,20 +46,20 @@ class TestTrackSqlRepository:
         assert updated_track.listens == track_mock.listens
 
     async def test_create(self, session: AsyncSession, album_mock: Album) -> None:
-        track_factory = TrackFactory(
-            title="In The End",
-            audio_url="/track_url.mp3",
-            duration=2.5 * 60,
-            album_id=album_mock.id,
+        new_track = (
+            TrackBuilder()
+            .set_title(title="In The End")
+            .set_audio(audio_url="/track_url.mp3")
+            .set_duration(duration=2.5 * 60)
+            .set_album(album_id=album_mock.id)
+            .build()
         )
 
-        new_track = track_factory.create()
         repository = TrackSqlRepository(session=session)
-
         track = await repository.get_by_id(new_track.id)
         assert track is None
 
-        await repository.upsert(new_track)
+        await repository.save(new_track)
         track = await repository.get_by_id(new_track.id)
 
         assert track is not None
@@ -68,6 +69,34 @@ class TestTrackSqlRepository:
         assert track.audio_url == new_track.audio_url
         assert track.duration == new_track.duration
         assert track.listens == new_track.listens
+
+    async def test_create_all(self, session: AsyncSession, album_mock: Album) -> None:
+        track_builder = (
+            TrackBuilder()
+            .set_title(title="In The End")
+            .set_duration(duration=2.5 * 60)
+            .set_album(album_id=album_mock.id)
+        )
+
+        new_track_1 = track_builder.set_audio(audio_url="/track_url_0.mp3").build()
+        new_track_2 = track_builder.set_audio(audio_url="/track_url_1.mp3").build()
+        new_track_3 = track_builder.set_audio(audio_url="/track_url_2.mp3").build()
+
+        repository = TrackSqlRepository(session=session)
+        track_1 = await repository.get_by_id(track_id=new_track_1.id)
+        track_2 = await repository.get_by_id(track_id=new_track_2.id)
+        track_3 = await repository.get_by_id(track_id=new_track_3.id)
+
+        assert not any([track_1, track_2, track_3])
+        await repository.save_all([new_track_1, new_track_2, new_track_3])
+
+        track_1 = await repository.get_by_id(track_id=new_track_1.id)
+        track_2 = await repository.get_by_id(track_id=new_track_2.id)
+        track_3 = await repository.get_by_id(track_id=new_track_3.id)
+
+        assert track_1 == new_track_1
+        assert track_2 == new_track_2
+        assert track_3 == new_track_3
 
     async def test_set_artists(
         self, session: AsyncSession, track_mock: Track, artist_mock: Artist

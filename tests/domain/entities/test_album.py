@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 from unittest.mock import patch
 
+from domain.builders.album import AlbumBuilder
 from domain.entities.album import Album
-from domain.factories.album import AlbumFactory
 
 
 class TestAlbum:
@@ -10,10 +10,14 @@ class TestAlbum:
         title = "Excperemental Album"
         cover_url = "/cover.png"
 
-        with patch("domain.factories.album.datetime") as mocker:
+        with patch("domain.builders.album.datetime") as mocker:
             mocker.now.return_value = datetime_mock
-            album_factory = AlbumFactory(title=title, cover_url=cover_url)
-            new_album = album_factory.create()
+            new_album = (
+                AlbumBuilder()
+                .set_title(title=title)
+                .set_cover(cover_url=cover_url)
+                .build()
+            )
 
             assert new_album.id is not None
             assert new_album.created_at is not None

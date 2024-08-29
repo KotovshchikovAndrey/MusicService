@@ -65,19 +65,29 @@ class TrackSqlRepository(TrackRepository):
         models = result.unique().scalars()
         return [map_to_charted_track(model) for model in models]
 
-    async def upsert(self, track: Track) -> None:
+    async def save(self, track: Track) -> None:
         model = map_to_track_model(track)
-        values = model.get_values_to_upsert(
-            exclude={
-                "listens",
-                "listens_per_day",
-            }
+        stmt = insert(TrackModel).values(model.to_dict_values())
+        stmt = stmt.on_conflict_do_update(
+            index_elements=[TrackModel.id],
+            set_=dict(title=stmt.excluded.title),
         )
+
+        await self._session.execute(stmt)
+
+    async def save_all(self, tracks: Iterable[Track]) -> None:
+        if not tracks:
+            return
+
+        values = []
+        for track in tracks:
+            model = map_to_track_model(track)
+            values.append(model.to_dict_values())
 
         stmt = insert(TrackModel).values(values)
         stmt = stmt.on_conflict_do_update(
             index_elements=[TrackModel.id],
-            set_=values,
+            set_=dict(title=stmt.excluded.title),
         )
 
         await self._session.execute(stmt)

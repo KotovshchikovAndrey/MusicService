@@ -14,9 +14,7 @@ class ElasticSearch[TEntity: BaseEntity](ABC):
     def __init__(self, index_url: str) -> None:
         self._index_url = index_url
 
-    def _parse_ids_from_response(
-        self, response_data: dict, limit: int
-    ) -> Iterable[UUID]:
+    def _parse_ids_from_response(self, response_data: dict, limit: int) -> Iterable[UUID]:
         hits = response_data["hits"]["hits"]
         if limit >= len(hits):
             return [UUID(hit["_id"]) for hit in hits]
@@ -28,14 +26,14 @@ class ElasticSearch[TEntity: BaseEntity](ABC):
         return ids
 
     @abstractmethod
-    async def upsert_index(self, entity: TEntity) -> None: ...
+    async def save_index(self, entity: TEntity) -> None: ...
 
     @abstractmethod
     async def search(self, query: str, limit: int) -> Iterable[UUID]: ...
 
 
 class TrackElasticSearch(ElasticSearch[Track]):
-    async def upsert_index(self, entity: Track) -> None:
+    async def save_index(self, entity: Track) -> None:
         async with httpx.AsyncClient(base_url=self._index_url) as client:
             data = {
                 "id": entity.id.hex,

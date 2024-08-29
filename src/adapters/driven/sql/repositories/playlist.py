@@ -22,7 +22,7 @@ class PlaylistSqlRepository(PlaylistRepository):
     ) -> PlaylistInfo | None:
         raise NotImplementedError
 
-    async def upsert(self, playlist: Playlist) -> None:
+    async def save(self, playlist: Playlist) -> None:
         raise NotImplementedError
 
     async def remove_by_id(self, playlist_id: UUID) -> None:

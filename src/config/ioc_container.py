@@ -1,5 +1,6 @@
 from punq import Container
 
+from adapters.driven.http.distribution_service import DistributionServiceHttpAdapter
 from adapters.driven.s3.blob_storage import S3BlobStorage
 from adapters.driven.sql.connection import SqlDatabaseConnection
 from adapters.driven.sql.uow import SqlUnitOfWork
@@ -8,8 +9,10 @@ from domain.usecases.get_artists import GetArtistsUseCase
 from domain.usecases.get_chart import GetChartUseCase
 from domain.usecases.get_new_releases import GetNewReleasesUseCase
 from domain.usecases.listen_track import ListenTrackUseCase
-from domain.usecases.register_artist import RegisterArtistUseCase
+from domain.usecases.register_created_artist import RegisterCreatedArtistUseCase
+from domain.usecases.upload_reviewed_album import UploadReviewedAlbumUseCase
 from domain.utils.blob_storage import BlobStorage
+from domain.utils.distribution_service import DistributionServiceAdapter
 from domain.utils.uow import UnitOfWork
 
 container = Container()
@@ -36,6 +39,8 @@ blob_storage = S3BlobStorage(
 
 container.register(BlobStorage, instance=blob_storage)
 
+container.register(DistributionServiceAdapter, DistributionServiceHttpAdapter)
+
 
 # UseCases
 
@@ -55,4 +60,6 @@ container.register(
     chunk_size=settings.blob_storage.chunk_size,
 )
 
-container.register(RegisterArtistUseCase, RegisterArtistUseCase)
+container.register(RegisterCreatedArtistUseCase, RegisterCreatedArtistUseCase)
+
+container.register(UploadReviewedAlbumUseCase, UploadReviewedAlbumUseCase)

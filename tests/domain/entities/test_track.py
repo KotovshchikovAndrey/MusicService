@@ -1,7 +1,7 @@
 import pytest
 
+from domain.builders.track import TrackBuilder
 from domain.entities.album import Album
-from domain.factories.track import TrackFactory
 
 
 class TestTrack:
@@ -32,14 +32,14 @@ class TestTrack:
         audio_url: str,
         album_mock: Album,
     ) -> None:
-        track_factory = TrackFactory(
-            album_id=album_mock.id,
-            audio_url=audio_url,
-            duration=duration,
-            title=title,
+        new_track = (
+            TrackBuilder()
+            .set_title(title=title)
+            .set_album(album_id=album_mock.id)
+            .set_audio(audio_url=audio_url)
+            .set_duration(duration=duration)
+            .build()
         )
-
-        new_track = track_factory.create()
 
         assert new_track.id is not None
         assert new_track.title.value == title

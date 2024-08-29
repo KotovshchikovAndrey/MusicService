@@ -16,7 +16,7 @@ class ArtistDto(ArtistLinkDto):
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class ArtistListDto(PaginationMixin):
-    artists: Iterable[ArtistDto] = field(default_factory=list)
+    artists: Iterable[ArtistDto] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -37,7 +37,7 @@ class AlbumInfoDto(OidMixin):
     title: str
     cover_url: str
     created_at: str
-    tracks: Iterable[TrackItemDto] = field(default_factory=list)
+    tracks: Iterable[TrackItemDto] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)

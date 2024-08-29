@@ -25,9 +25,7 @@ class S3BlobStorage(BlobStorage):
         self._secret_key = secret_key
         self._bucket_name = bucket_name
         self._use_ssl = use_ssl
-        self._endpoint_url = (
-            f"http://{address}" if not use_ssl else f"https://{address}"
-        )
+        self._endpoint_url = f"http://{address}" if not use_ssl else f"https://{address}"
 
     async def read(
         self,

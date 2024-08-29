@@ -43,12 +43,14 @@ class TrackModel(TitleMixin, BaseModel):
     listens: orm.Mapped[int] = orm.mapped_column(
         BigInteger(),
         nullable=False,
+        default=0,
         server_default="0",
     )
 
     listens_per_day: orm.Mapped[int] = orm.mapped_column(
         Integer(),
         nullable=False,
+        default=0,
         server_default="0",
     )
 

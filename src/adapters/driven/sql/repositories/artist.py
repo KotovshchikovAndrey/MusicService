@@ -39,14 +39,15 @@ class ArtistSqlRepository(ArtistRepository):
         models = await self._session.scalars(stmt)
         return [map_to_artist(model) for model in models]
 
-    async def upsert(self, artist: Artist) -> None:
+    async def save(self, artist: Artist) -> None:
         model = map_to_artist_model(artist)
-        values = model.get_values_to_upsert()
-
-        stmt = insert(ArtistModel).values(values)
+        stmt = insert(ArtistModel).values(model.to_dict_values())
         stmt = stmt.on_conflict_do_update(
             index_elements=[ArtistModel.id],
-            set_=values,
+            set_=dict(
+                nickname=stmt.excluded.nickname,
+                avatar_url=stmt.excluded.avatar_url,
+            ),
         )
 
         await self._session.execute(stmt)

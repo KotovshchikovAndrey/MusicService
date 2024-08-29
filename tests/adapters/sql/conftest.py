@@ -11,7 +11,7 @@ from domain.entities.artist import Artist
 from domain.entities.track import Track
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 async def session():
     engine = create_async_engine(settings.database.get_test_connection_url())
     async with engine.begin() as conn:
@@ -23,7 +23,7 @@ async def session():
     await session.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 async def prepare_database(
     session: AsyncSession,
     album_mock: Album,

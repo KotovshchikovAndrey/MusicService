@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import orm
+from sqlalchemy import inspect, orm
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 
 
@@ -14,14 +14,15 @@ class BaseModel(orm.DeclarativeBase):
     def __tablename__(cls) -> str:
         return cls.__name__.replace("Model", "").lower()
 
-    def get_values_to_upsert(self, exclude: set[str] | None = None) -> dict:
+    def to_dict_values(self) -> dict:
         values = dict()
-        for column in self.__table__.columns:
-            model_field_name = column.name
-            if exclude is not None and model_field_name in exclude:
-                continue
+        for column in inspect(self).mapper.column_attrs:
+            value = getattr(self, column.key)
+            if value is None:
+                default_param = column.columns[0].default
+                if default_param is not None:
+                    value = default_param.arg
 
-            value = getattr(self, model_field_name, None)
-            values[column.name] = value
+            values[column.key] = value
 
         return values

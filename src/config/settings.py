@@ -48,7 +48,15 @@ class BrokerSettings(Settings):
     user: Annotated[str, Field(alias="RABBITMQ_USER")]
     password: Annotated[str, Field(alias="RABBITMQ_PASSWORD")]
 
-    distribution_queue: Annotated[str, Field(alias="RABBITMQ_DISTRIBUTION_QUEUE")]
+    register_created_artist_queue: Annotated[
+        str,
+        Field(alias="RABBITMQ_REGISTER_CREATED_ARTIST_QUEUE"),
+    ]
+
+    upload_reviewed_album_queue: Annotated[
+        str,
+        Field(alias="RABBITMQ_UPLOAD_REVIEWED_ALBUM_QUEUE"),
+    ]
 
     def get_connection_url(self) -> str:
         return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}/"

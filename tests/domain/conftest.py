@@ -11,32 +11,33 @@ from domain.repositories.album import AlbumRepository
 from domain.repositories.artist import ArtistRepository
 from domain.repositories.track import TrackRepository
 from domain.utils.blob_storage import BlobStorage
-from domain.utils.moderation import ModerationServiceAdapter
+from domain.utils.distribution_service import DistributionServiceAdapter
+from domain.utils.file_downloading import add_url_for_downloaded_file
 from domain.utils.uow import UnitOfWork
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="function")
 def album_repository_mock(
     album_mock: Album,
     album_info_mock: AlbumInfo,
 ) -> AlbumRepository:
     repository = MagicMock(spec=AlbumRepository)
     repository.get_by_id = AsyncMock(return_value=album_mock)
-    repository.upsert = AsyncMock()
+    repository.save = AsyncMock()
     repository.get_new_releases = AsyncMock(return_value=[album_info_mock])
     return repository
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="function")
 def artist_repository_mock(artist_mock: Artist) -> ArtistRepository:
     repository = MagicMock(spec=ArtistRepository)
     repository.get_by_id = AsyncMock(return_value=artist_mock)
     repository.filter_by_ids = AsyncMock(return_value=[artist_mock])
-    repository.upsert = AsyncMock()
+    repository.save = AsyncMock()
     return repository
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="function")
 def blob_storage_mock(audio_mock: BytesIO) -> BlobStorage:
     blob_storage = MagicMock(spec=BlobStorage)
 
@@ -49,29 +50,29 @@ def blob_storage_mock(audio_mock: BytesIO) -> BlobStorage:
     return blob_storage
 
 
-@pytest.fixture(scope="package")
-def moderation_service_mock(audio_mock: BytesIO) -> ModerationServiceAdapter:
-    mocked_moderation_service = MagicMock(spec=ModerationServiceAdapter)
-    mocked_moderation_service.download_approved_audio = AsyncMock(
-        return_value=audio_mock
+@pytest.fixture(scope="function")
+def distribution_service_mock(audio_mock: BytesIO) -> DistributionServiceAdapter:
+    mocked_distribution_service = MagicMock(spec=DistributionServiceAdapter)
+    mocked_distribution_service.download_file = add_url_for_downloaded_file(
+        function=AsyncMock(return_value=audio_mock)
     )
 
-    return mocked_moderation_service
+    return mocked_distribution_service
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="function")
 def track_repository_mock(
     track_mock: Track,
     charted_track_mock: ChartedTrack,
 ) -> TrackRepository:
     repository = MagicMock(spec=TrackRepository)
     repository.get_by_id = AsyncMock(return_value=track_mock)
-    repository.upsert = AsyncMock()
+    repository.save = AsyncMock()
     repository.get_top_chart_for_period = AsyncMock(return_value=[charted_track_mock])
     return repository
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="function")
 def uow_mock(
     album_repository_mock: AlbumRepository,
     artist_repository_mock: ArtistRepository,

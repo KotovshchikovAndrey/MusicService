@@ -1,7 +1,5 @@
-import asyncio
 from datetime import UTC, datetime
 from io import BytesIO
-from uuid import uuid4
 
 import pytest
 
@@ -16,26 +14,19 @@ from domain.values.listens import Listens
 from domain.values.nickname import Nickname
 from domain.values.title import Title
 
-# @pytest.fixture(scope="session")
-# def event_loop(request):
-#     loop = asyncio.get_event_loop_policy().new_event_loop()
-#     yield loop
-#     loop.close()
 
-
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def datetime_mock() -> datetime:
     return datetime.now(UTC)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def audio_mock() -> BytesIO:
     blob = BytesIO(b"12345")
-    blob.name = "test_audio.mp3"
     return blob
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def album_mock(datetime_mock: datetime) -> Album:
     return Album(
         title=Title("Vmeste My"),
@@ -44,7 +35,7 @@ def album_mock(datetime_mock: datetime) -> Album:
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def artist_mock() -> Artist:
     return Artist(
         nickname=Nickname("Unknown"),
@@ -52,7 +43,7 @@ def artist_mock() -> Artist:
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def track_mock(album_mock: Album) -> Track:
     return Track(
         album_id=album_mock.id,
@@ -63,7 +54,7 @@ def track_mock(album_mock: Album) -> Track:
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def charted_track_mock(
     track_mock: Track,
     album_mock: Album,
@@ -86,7 +77,7 @@ def charted_track_mock(
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def album_info_mock(
     album_mock: Album,
     artist_mock: Artist,

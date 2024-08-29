@@ -24,7 +24,7 @@ class UpdateArtistUseCase(BaseUseCase[UpdateArtistDto, ArtistDto]):
             if data.avatar_url is not None:
                 artist.change_avatar(data.avatar_url)
 
-            await uow.artists.upsert(artist)
+            await uow.artists.save(artist)
             await uow.commit()
 
         return map_to_artist_dto(artist)

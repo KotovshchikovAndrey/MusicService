@@ -54,14 +54,15 @@ class AlbumSqlRepository(AlbumRepository):
         result = await self._session.scalar(stmt)
         return bool(result)
 
-    async def upsert(self, album: Album) -> None:
+    async def save(self, album: Album) -> None:
         model = map_to_album_model(album)
-        values = model.get_values_to_upsert()
-
-        stmt = insert(AlbumModel).values(values)
+        stmt = insert(AlbumModel).values(model.to_dict_values())
         stmt = stmt.on_conflict_do_update(
             index_elements=[AlbumModel.id],
-            set_=values,
+            set_=dict(
+                title=stmt.excluded.title,
+                cover_url=stmt.excluded.cover_url,
+            ),
         )
 
         await self._session.execute(stmt)
