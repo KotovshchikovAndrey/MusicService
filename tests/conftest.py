@@ -3,16 +3,13 @@ from io import BytesIO
 
 import pytest
 
-from domain.entities.album import Album, AlbumInfo
-from domain.entities.artist import Artist, ArtistLink
-from domain.entities.track import ChartedTrack, Track, TrackItem
-from domain.values.audio_url import AudioUrl
-from domain.values.avatar_url import AvatarUrl
-from domain.values.cover_url import CoverUrl
-from domain.values.duration import Duration
-from domain.values.listens import Listens
-from domain.values.nickname import Nickname
-from domain.values.title import Title
+from domain.models.builders.album import AlbumBuilder
+from domain.models.builders.artist import ArtistBuilder
+from domain.models.builders.track import TrackBuilder
+from domain.models.entities.album import Album, AlbumInfo
+from domain.models.entities.artist import Artist, BaseArtist
+from domain.models.entities.track import ChartedTrack, Track, TrackItem
+from domain.models.values.listens import Listens
 
 
 @pytest.fixture(scope="function")
@@ -28,30 +25,40 @@ def audio_mock() -> BytesIO:
 
 @pytest.fixture(scope="function")
 def album_mock(datetime_mock: datetime) -> Album:
-    return Album(
-        title=Title("Vmeste My"),
-        cover_url=CoverUrl("/test_cover.png"),
-        created_at=datetime_mock,
+    album = (
+        AlbumBuilder()
+        .set_title(title="Vmeste My")
+        .set_cover(cover_url="/test_cover.png")
+        .build()
     )
+    album.created_at = datetime_mock
+    return album
 
 
 @pytest.fixture(scope="function")
 def artist_mock() -> Artist:
-    return Artist(
-        nickname=Nickname("Unknown"),
-        avatar_url=AvatarUrl("/avatar.png"),
+    artist = (
+        ArtistBuilder()
+        .set_nickname(nickname="Unknown")
+        .set_avatar(avatar_url="/avatar.png")
+        .build()
     )
+    return artist
 
 
 @pytest.fixture(scope="function")
 def track_mock(album_mock: Album) -> Track:
-    return Track(
-        album_id=album_mock.id,
-        title=Title("In The End (Mellen Gi Remix)"),
-        audio_url=AudioUrl("/test_audio.mp3"),
-        duration=Duration(4 * 60),
-        listens=Listens(100),
+    track = (
+        TrackBuilder()
+        .set_album(album_id=album_mock.id)
+        .set_title(title="In The End (Mellen Gi Remix)")
+        .set_audio("/test_audio.mp3")
+        .set_duration(4 * 60)
+        .build()
     )
+
+    track.listens = Listens(100)
+    return track
 
 
 @pytest.fixture(scope="function")
@@ -60,21 +67,19 @@ def charted_track_mock(
     album_mock: Album,
     artist_mock: Artist,
 ) -> Track:
-    return ChartedTrack(
-        id=track_mock.id,
-        album_id=track_mock.album_id,
-        title=track_mock.title,
-        audio_url=track_mock.audio_url,
-        duration=track_mock.duration,
-        cover_url=album_mock.cover_url,
-        listens=track_mock.listens,
-        artists=(
-            ArtistLink(
-                id=artist_mock.id,
-                nickname=artist_mock.nickname,
-            ),
-        ),
-    )
+    charted_track = ChartedTrack(id=track_mock.id)
+    charted_track.album_id = track_mock.album_id
+    charted_track.title = track_mock.title
+    charted_track.audio_url = track_mock.audio_url
+    charted_track.duration = track_mock.duration
+    charted_track.cover_url = album_mock.cover_url
+    charted_track.listens = track_mock.listens
+
+    base_artist = BaseArtist(id=artist_mock.id)
+    base_artist.nickname = artist_mock.nickname
+
+    charted_track.artists = (base_artist,)
+    return charted_track
 
 
 @pytest.fixture(scope="function")
@@ -83,25 +88,21 @@ def album_info_mock(
     artist_mock: Artist,
     track_mock: Track,
 ) -> AlbumInfo:
-    return AlbumInfo(
-        id=album_mock.id,
-        title=album_mock.title,
-        cover_url=album_mock.cover_url,
-        created_at=album_mock.created_at,
-        tracks=[
-            TrackItem(
-                id=track_mock.id,
-                title=track_mock.title,
-                duration=track_mock.duration,
-                audio_url=track_mock.audio_url,
-                listens=track_mock.listens,
-                album_id=track_mock.album_id,
-                artists=[
-                    ArtistLink(
-                        id=artist_mock.id,
-                        nickname=artist_mock.nickname,
-                    )
-                ],
-            )
-        ],
-    )
+    album_info = AlbumInfo(id=album_mock.id)
+    album_info.title = album_mock.title
+    album_info.cover_url = album_mock.cover_url
+    album_info.created_at = album_mock.created_at
+
+    track_item = TrackItem(id=track_mock.id)
+    track_item.title = track_mock.title
+    track_item.duration = track_mock.duration
+    track_item.audio_url = track_mock.audio_url
+    track_item.listens = track_mock.listens
+    track_item.album_id = track_mock.album_id
+
+    base_artist = BaseArtist(id=artist_mock.id)
+    base_artist.nickname = artist_mock.nickname
+    track_item.artists = (base_artist,)
+
+    album_info.tracks = (track_item,)
+    return album_info

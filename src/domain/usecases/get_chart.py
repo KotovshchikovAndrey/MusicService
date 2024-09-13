@@ -1,21 +1,21 @@
-from domain.common.mappers import map_to_charted_track_dto
-from domain.dtos.inputs import GetChartDto
-from domain.dtos.outputs import ChartedTrackDto
-from domain.usecases.base import BaseUseCase
-from domain.utils.uow import UnitOfWork
+from typing import Iterable
+
+from domain.models.entities.track import ChartedTrack
+from domain.ports.driven.database.unit_of_work import UnitOfWork
+from domain.ports.driving.getting_chart import GetChartDto, GetChartUseCase
 
 
-class GetChartUseCase(BaseUseCase[GetChartDto, list[ChartedTrackDto]]):
+class GetChartUseCaseImpl(GetChartUseCase):
     _uow: UnitOfWork
 
     def __init__(self, uow: UnitOfWork) -> None:
         self._uow = uow
 
-    async def execute(self, data: GetChartDto) -> list[ChartedTrackDto]:
+    async def execute(self, data: GetChartDto) -> Iterable[ChartedTrack]:
         async with self._uow as uow:
             tracks = await uow.tracks.get_top_chart_for_period(
                 period="day",
                 limit=data.limit,
             )
 
-            return [map_to_charted_track_dto(track) for track in tracks]
+            return tracks

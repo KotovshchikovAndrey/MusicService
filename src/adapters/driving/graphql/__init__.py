@@ -3,7 +3,7 @@ from strawberry.fastapi import GraphQLRouter
 
 from config.settings import settings
 
-from .queries import Query
+from .resolvers.queries import Query
 
 router = GraphQLRouter(
     strawberry.Schema(Query),

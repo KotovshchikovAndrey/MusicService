@@ -1,9 +1,9 @@
 from sqlalchemy import String, orm
 
-from adapters.driven.sql.models.base import BaseModel
+from adapters.driven.sql.models.base import Base
 
 
-class ArtistModel(BaseModel):
+class Artist(Base):
     nickname: orm.Mapped[str] = orm.mapped_column(
         String(50),
         nullable=False,

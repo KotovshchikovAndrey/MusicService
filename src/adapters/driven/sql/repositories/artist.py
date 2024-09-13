@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
 
 from adapters.driven.sql.mappers.artist import map_to_artist, map_to_artist_model
-from adapters.driven.sql.models.artist import ArtistModel
-from domain.entities.artist import Artist
-from domain.repositories.artist import ArtistRepository
+from adapters.driven.sql.models.artist import Artist as ArtistModel
+from domain.models.entities.artist import Artist
+from domain.ports.driven.database.artist_repository import ArtistRepository
 
 
 class ArtistSqlRepository(ArtistRepository):

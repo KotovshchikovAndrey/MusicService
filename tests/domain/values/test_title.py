@@ -1,6 +1,6 @@
 import pytest
 
-from domain.values.title import Title
+from domain.models.values.title import Title
 
 
 class TestTitle:

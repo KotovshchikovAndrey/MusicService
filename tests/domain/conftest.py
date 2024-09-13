@@ -4,16 +4,16 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from domain.entities.album import Album, AlbumInfo
-from domain.entities.artist import Artist
-from domain.entities.track import ChartedTrack, Track
-from domain.repositories.album import AlbumRepository
-from domain.repositories.artist import ArtistRepository
-from domain.repositories.track import TrackRepository
-from domain.utils.blob_storage import BlobStorage
-from domain.utils.distribution_service import DistributionServiceAdapter
-from domain.utils.file_downloading import add_url_for_downloaded_file
-from domain.utils.uow import UnitOfWork
+from domain.models.entities.album import Album, AlbumInfo
+from domain.models.entities.artist import Artist
+from domain.models.entities.track import ChartedTrack, Track
+from domain.ports.driven.blob_storage import BlobStorage
+from domain.ports.driven.database.album_repository import AlbumRepository
+from domain.ports.driven.database.artist_repository import ArtistRepository
+from domain.ports.driven.database.track_repository import TrackRepository
+from domain.ports.driven.database.unit_of_work import UnitOfWork
+from domain.ports.driven.distribution_service import DistributionServiceAdapter
+from domain.utils.files import add_url_for_downloaded_file
 
 
 @pytest.fixture(scope="function")

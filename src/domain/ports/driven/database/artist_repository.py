@@ -1,0 +1,16 @@
+from typing import Iterable, Protocol
+from uuid import UUID
+
+from domain.models.entities.artist import Artist
+
+
+class ArtistRepository(Protocol):
+    async def get_by_id(self, artist_id: UUID) -> Artist | None: ...
+
+    async def get_list(self, limit: int, offset: int) -> list[Artist]: ...
+
+    async def get_total_count(self) -> int: ...
+
+    async def filter_by_ids(self, artist_ids: Iterable[UUID]) -> list[Artist]: ...
+
+    async def save(self, artist: Artist) -> None: ...

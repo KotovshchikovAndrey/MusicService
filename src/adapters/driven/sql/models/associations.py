@@ -1,11 +1,11 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Table, UniqueConstraint, text
 
 from adapters.driven.sql import consts
-from adapters.driven.sql.models.base import BaseModel
+from adapters.driven.sql.models.base import Base
 
 track_artist = Table(
     "track_artist",
-    BaseModel.metadata,
+    Base.metadata,
     Column(
         "artist_id",
         ForeignKey("artist.id", ondelete="CASCADE"),
@@ -25,7 +25,7 @@ track_artist = Table(
 
 track_in_playlist = Table(
     "track_in_playlist",
-    BaseModel.metadata,
+    Base.metadata,
     Column(
         "playlist_id",
         ForeignKey("playlist.id", ondelete="CASCADE"),

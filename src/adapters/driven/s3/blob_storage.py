@@ -3,7 +3,7 @@ from io import BytesIO
 
 import aioboto3
 
-from domain.utils.blob_storage import BlobStorage
+from domain.ports.driven.blob_storage import BlobStorage
 
 
 class S3BlobStorage(BlobStorage):

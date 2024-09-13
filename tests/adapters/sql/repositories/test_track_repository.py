@@ -1,14 +1,13 @@
-import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from adapters.driven.sql.models.track import TrackModel
+from adapters.driven.sql.models.track import Track as TrackModel
 from adapters.driven.sql.repositories.track import TrackSqlRepository
-from domain.builders.track import TrackBuilder
-from domain.entities.album import Album
-from domain.entities.artist import Artist
-from domain.entities.track import Track
+from domain.models.builders.track import TrackBuilder
+from domain.models.entities.album import Album
+from domain.models.entities.artist import Artist
+from domain.models.entities.track import Track
 
 
 class TestTrackSqlRepository:
@@ -31,7 +30,7 @@ class TestTrackSqlRepository:
 
         old_title = track.title
         new_title = "New title"
-        track.change_title(new_title)
+        track.edit_title(new_title)
         await repository.save(track)
 
         updated_track = await repository.get_by_id(track_mock.id)
@@ -71,32 +70,26 @@ class TestTrackSqlRepository:
         assert track.listens == new_track.listens
 
     async def test_create_all(self, session: AsyncSession, album_mock: Album) -> None:
-        track_builder = (
-            TrackBuilder()
-            .set_title(title="In The End")
-            .set_duration(duration=2.5 * 60)
-            .set_album(album_id=album_mock.id)
-        )
-
-        new_track_1 = track_builder.set_audio(audio_url="/track_url_0.mp3").build()
-        new_track_2 = track_builder.set_audio(audio_url="/track_url_1.mp3").build()
-        new_track_3 = track_builder.set_audio(audio_url="/track_url_2.mp3").build()
+        new_tracks = []
+        for index in range(3):
+            new_track = (
+                TrackBuilder()
+                .set_audio(audio_url=f"/track_url_{index}.mp3")
+                .set_title(title="In The End")
+                .set_duration(duration=2.5 * 60)
+                .set_album(album_id=album_mock.id)
+                .build()
+            )
 
         repository = TrackSqlRepository(session=session)
-        track_1 = await repository.get_by_id(track_id=new_track_1.id)
-        track_2 = await repository.get_by_id(track_id=new_track_2.id)
-        track_3 = await repository.get_by_id(track_id=new_track_3.id)
+        for new_track in new_tracks:
+            track_in_db = await repository.get_by_id(track_id=new_track.id)
+            assert track_in_db is None
 
-        assert not any([track_1, track_2, track_3])
-        await repository.save_all([new_track_1, new_track_2, new_track_3])
-
-        track_1 = await repository.get_by_id(track_id=new_track_1.id)
-        track_2 = await repository.get_by_id(track_id=new_track_2.id)
-        track_3 = await repository.get_by_id(track_id=new_track_3.id)
-
-        assert track_1 == new_track_1
-        assert track_2 == new_track_2
-        assert track_3 == new_track_3
+        await repository.save_all(new_tracks)
+        for new_track in new_tracks:
+            track_in_db = await repository.get_by_id(track_id=new_track.id)
+            assert new_track == track_in_db
 
     async def test_set_artists(
         self, session: AsyncSession, track_mock: Track, artist_mock: Artist

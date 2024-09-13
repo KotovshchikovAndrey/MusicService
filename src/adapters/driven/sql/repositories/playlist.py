@@ -2,8 +2,8 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from domain.entities.playlist import Playlist, PlaylistInfo
-from domain.repositories.playlist import PlaylistRepository
+from domain.models.entities.playlist import Playlist, PlaylistInfo
+from domain.ports.driven.database.playlist_repository import PlaylistRepository
 
 
 class PlaylistSqlRepository(PlaylistRepository):

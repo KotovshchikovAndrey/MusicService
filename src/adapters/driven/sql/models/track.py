@@ -12,16 +12,16 @@ from sqlalchemy import (
 )
 
 from adapters.driven.sql import consts
-from adapters.driven.sql.models.artist import ArtistModel
+from adapters.driven.sql.models.artist import Artist
 from adapters.driven.sql.models.associations import track_artist
-from adapters.driven.sql.models.base import BaseModel
+from adapters.driven.sql.models.base import Base
 from adapters.driven.sql.models.mixins import TitleMixin
 
 if TYPE_CHECKING:
-    from adapters.driven.sql.models.album import AlbumModel
+    from adapters.driven.sql.models.album import Album
 
 
-class TrackModel(TitleMixin, BaseModel):
+class Track(TitleMixin, Base):
     __table_args__ = (
         CheckConstraint(
             "listens >= 0",
@@ -60,12 +60,12 @@ class TrackModel(TitleMixin, BaseModel):
         name="album_id",
     )
 
-    album: orm.Mapped["AlbumModel"] = orm.relationship(
+    album: orm.Mapped["Album"] = orm.relationship(
         lazy="raise",
         back_populates="tracks",
     )
 
-    artists: orm.Mapped[list["ArtistModel"]] = orm.relationship(
+    artists: orm.Mapped[list["Artist"]] = orm.relationship(
         lazy="raise",
         secondary=track_artist,
     )

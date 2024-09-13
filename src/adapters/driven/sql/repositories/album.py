@@ -10,10 +10,10 @@ from adapters.driven.sql.mappers.album import (
     map_to_album_info,
     map_to_album_model,
 )
-from adapters.driven.sql.models.album import AlbumModel
-from adapters.driven.sql.models.track import TrackModel
-from domain.entities.album import Album, AlbumInfo
-from domain.repositories.album import AlbumRepository
+from adapters.driven.sql.models.album import Album as AlbumModel
+from adapters.driven.sql.models.track import Track as TrackModel
+from domain.models.entities.album import Album, AlbumInfo
+from domain.ports.driven.database.album_repository import AlbumRepository
 
 
 class AlbumSqlRepository(AlbumRepository):
@@ -50,7 +50,6 @@ class AlbumSqlRepository(AlbumRepository):
 
     async def check_exists(self, album_id: UUID) -> bool:
         stmt = select(select(AlbumModel.id).where(AlbumModel.id == album_id).exists())
-
         result = await self._session.scalar(stmt)
         return bool(result)
 

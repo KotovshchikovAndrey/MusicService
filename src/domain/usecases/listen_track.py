@@ -1,12 +1,14 @@
-from domain.common.exceptions import NotFoundException
-from domain.dtos.inputs import ListenTrackDto
-from domain.dtos.outputs import AudioStreamDto
-from domain.usecases.base import BaseUseCase
-from domain.utils.blob_storage import BlobStorage
-from domain.utils.uow import UnitOfWork
+from domain.exceptions.track import TrackNotFound
+from domain.ports.driven.blob_storage import BlobStorage
+from domain.ports.driven.database.unit_of_work import UnitOfWork
+from domain.ports.driving.listening_tracks import (
+    AudioStream,
+    ListenTrackDto,
+    ListenTrackUseCase,
+)
 
 
-class ListenTrackUseCase(BaseUseCase[ListenTrackDto, AudioStreamDto]):
+class ListenTrackUseCaseImpl(ListenTrackUseCase):
     _uow: UnitOfWork
     _blob_storage: BlobStorage
     _chunk_size: int
@@ -21,11 +23,11 @@ class ListenTrackUseCase(BaseUseCase[ListenTrackDto, AudioStreamDto]):
         self._blob_storage = blob_storage
         self._chunk_size = chunk_size
 
-    async def execute(self, data: ListenTrackDto) -> AudioStreamDto:
+    async def execute(self, data: ListenTrackDto) -> AudioStream:
         async with self._uow as uow:
-            track = await uow.tracks.get_by_id(data.id)
+            track = await uow.tracks.get_by_id(data.track_id)
             if track is None:
-                raise NotFoundException("Track not found")
+                raise TrackNotFound()
 
         track_size = await self._blob_storage.get_byte_size(track.audio_url.value)
         start_byte, end_byte = data.start_byte, data.end_byte
@@ -39,7 +41,7 @@ class ListenTrackUseCase(BaseUseCase[ListenTrackDto, AudioStreamDto]):
             end_byte=end_byte,
         )
 
-        return AudioStreamDto(
+        return AudioStream(
             stream=stream,
             content_length=str(end_byte - start_byte),
             content_type="audio/mpeg",

@@ -12,12 +12,12 @@ from adapters.driven.sql.mappers.track import (
     map_to_track,
     map_to_track_model,
 )
-from adapters.driven.sql.models.album import AlbumModel
-from adapters.driven.sql.models.artist import ArtistModel
+from adapters.driven.sql.models.album import Album as AlbumModel
+from adapters.driven.sql.models.artist import Artist as ArtistModel
 from adapters.driven.sql.models.associations import track_artist
-from adapters.driven.sql.models.track import TrackModel
-from domain.entities.track import ChartedTrack, Track
-from domain.repositories.track import TrackRepository
+from adapters.driven.sql.models.track import Track as TrackModel
+from domain.models.entities.track import ChartedTrack, Track
+from domain.ports.driven.database.track_repository import TrackRepository
 
 
 class TrackSqlRepository(TrackRepository):

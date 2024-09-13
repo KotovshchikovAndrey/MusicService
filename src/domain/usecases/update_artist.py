@@ -1,30 +1,28 @@
-from domain.common.exceptions import NotFoundException
-from domain.common.mappers import map_to_artist_dto
-from domain.dtos.inputs import UpdateArtistDto
-from domain.dtos.outputs import ArtistDto
-from domain.usecases.base import BaseUseCase
-from domain.utils.uow import UnitOfWork
+from domain.exceptions.artist import ArtistNotFound
+from domain.models.entities.artist import Artist
+from domain.ports.driven.database.unit_of_work import UnitOfWork
+from domain.ports.driving.updating_artists import UpdateArtistDto, UpdateArtistUseCase
 
 
-class UpdateArtistUseCase(BaseUseCase[UpdateArtistDto, ArtistDto]):
+class UpdateArtistUseCaseImpl(UpdateArtistUseCase):
     _uow: UnitOfWork
 
     def __init__(self, uow: UnitOfWork) -> None:
         self._uow = uow
 
-    async def execute(self, data: UpdateArtistDto) -> ArtistDto:
+    async def execute(self, data: UpdateArtistDto) -> Artist:
         async with self._uow as uow:
-            artist = await uow.artists.get_by_id(data.id)
+            artist = await uow.artists.get_by_id(data.artist_id)
             if artist is None:
-                raise NotFoundException()
+                raise ArtistNotFound()
 
             if data.nickname is not None:
-                artist.change_nickname(data.nickname)
+                artist.edit_nickname(data.nickname)
 
             if data.avatar_url is not None:
-                artist.change_avatar(data.avatar_url)
+                artist.edit_avatar(data.avatar_url)
 
             await uow.artists.save(artist)
             await uow.commit()
 
-        return map_to_artist_dto(artist)
+        return artist

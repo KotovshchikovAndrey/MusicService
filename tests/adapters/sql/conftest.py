@@ -1,14 +1,15 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from adapters.driven.sql.models import BaseModel
-from adapters.driven.sql.models.album import AlbumModel
-from adapters.driven.sql.models.artist import ArtistModel
-from adapters.driven.sql.models.track import TrackModel
+from adapters.driven.sql.models import Base as BaseModel
+from adapters.driven.sql.models.album import Album as AlbumModel
+from adapters.driven.sql.models.artist import Artist as ArtistModel
+from adapters.driven.sql.models.track import Track as TrackModel
 from config.settings import settings
-from domain.entities.album import Album
-from domain.entities.artist import Artist
-from domain.entities.track import Track
+
+from domain.models.entities.album import Album
+from domain.models.entities.artist import Artist
+from domain.models.entities.track import Track
 
 
 @pytest.fixture(scope="function")

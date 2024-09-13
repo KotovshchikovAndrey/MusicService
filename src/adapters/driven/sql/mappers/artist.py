@@ -1,27 +1,27 @@
-from adapters.driven.sql.models.artist import ArtistModel
-from domain.entities.artist import Artist, ArtistLink
-from domain.values.avatar_url import AvatarUrl
-from domain.values.nickname import Nickname
+from adapters.driven.sql.models.artist import Artist as ArtistModel
+from domain.models.entities.artist import Artist, BaseArtist
+from domain.models.values.avatar_url import AvatarUrl
+from domain.models.values.nickname import Nickname
 
 
-def map_to_artist_link(artist_model: ArtistModel) -> ArtistLink:
-    return ArtistLink(
-        id=artist_model.id,
-        nickname=Nickname(artist_model.nickname),
-    )
+def map_to_base_artist(artist_model: ArtistModel) -> BaseArtist:
+    base_artist = BaseArtist(id=artist_model.id)
+    base_artist.nickname = Nickname(artist_model.nickname)
+
+    return base_artist
 
 
 def map_to_artist(artist_model: ArtistModel) -> Artist:
-    return Artist(
-        id=artist_model.id,
-        nickname=Nickname(artist_model.nickname),
-        avatar_url=AvatarUrl(artist_model.avatar_url),
-    )
+    artist = Artist(id=artist_model.id)
+    artist.nickname = Nickname(artist_model.nickname)
+    artist.avatar_url = AvatarUrl(artist_model.avatar_url)
+
+    return artist
 
 
 def map_to_artist_model(artist: Artist) -> ArtistModel:
-    return ArtistModel(
-        id=artist.id,
-        nickname=artist.nickname.value,
-        avatar_url=artist.avatar_url.value,
-    )
+    artist_model = ArtistModel(id=artist.id)
+    artist_model.nickname = artist.nickname.value
+    artist_model.avatar_url = artist.avatar_url.value
+
+    return artist_model

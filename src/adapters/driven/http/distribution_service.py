@@ -3,8 +3,8 @@ from io import BytesIO
 
 import httpx
 
-from domain.utils.distribution_service import DistributionServiceAdapter
-from domain.utils.file_downloading import add_url_for_downloaded_file
+from domain.ports.driven.distribution_service import DistributionServiceAdapter
+from domain.utils.files import add_url_for_downloaded_file
 
 
 class DistributionServiceHttpAdapter(DistributionServiceAdapter):

@@ -1,6 +1,6 @@
 import pytest
 
-from domain.values.cover_url import CoverUrl
+from domain.models.values.cover_url import CoverUrl
 
 
 class TestCoverUrl:

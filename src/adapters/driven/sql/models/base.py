@@ -4,7 +4,7 @@ from sqlalchemy import inspect, orm
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 
 
-class BaseModel(orm.DeclarativeBase):
+class Base(orm.DeclarativeBase):
     id: orm.Mapped[UUID] = orm.mapped_column(
         PGUUID(as_uuid=True),
         primary_key=True,

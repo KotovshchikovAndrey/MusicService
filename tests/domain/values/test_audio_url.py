@@ -1,6 +1,6 @@
 import pytest
 
-from domain.values.audio_url import AudioUrl
+from domain.models.values.audio_url import AudioUrl
 
 
 class TestAudioUrl:

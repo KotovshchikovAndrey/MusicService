@@ -1,7 +1,7 @@
 import pytest
 
-from domain.builders.track import TrackBuilder
-from domain.entities.album import Album
+from domain.models.builders.track import TrackBuilder
+from domain.models.entities.album import Album
 
 
 class TestTrack:

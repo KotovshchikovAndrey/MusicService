@@ -2,8 +2,7 @@ from fastapi import APIRouter, Request, status
 from fastapi.responses import StreamingResponse
 
 from config.ioc_container import container
-from domain.dtos.inputs import ListenTrackDto
-from domain.usecases.listen_track import ListenTrackUseCase
+from domain.ports.driving.listening_tracks import ListenTrackDto, ListenTrackUseCase
 
 router = APIRouter(prefix="/tracks")
 
