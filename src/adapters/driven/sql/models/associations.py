@@ -1,6 +1,6 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Table, UniqueConstraint, text
+from sqlalchemy import Column, DateTime, ForeignKey, Table, UniqueConstraint, func
 
-from adapters.driven.sql import consts
+from adapters.driven.sql import constraints
 from adapters.driven.sql.models.base import Base
 
 track_artist = Table(
@@ -19,7 +19,7 @@ track_artist = Table(
     UniqueConstraint(
         "artist_id",
         "track_id",
-        name=consts.TRACK_ARTIST_UNIQUE_CONSTRAINT,
+        name=constraints.TRACK_ARTIST_UNIQUE_CONSTRAINT,
     ),
 )
 
@@ -40,11 +40,37 @@ track_in_playlist = Table(
         "added_at",
         DateTime(timezone=False),
         nullable=False,
-        server_default=text("TIMEZONE('UTC', NOW())"),
+        server_default=func.now(),
     ),
     UniqueConstraint(
         "playlist_id",
         "track_id",
-        name=consts.TRACK_IN_PLAYLIST_UNIQUE_CONSTRAINT,
+        name=constraints.TRACK_IN_PLAYLIST_UNIQUE_CONSTRAINT,
+    ),
+)
+
+listener = Table(
+    "listener",
+    Base.metadata,
+    Column(
+        "user_id",
+        ForeignKey("user.id", ondelete="RESTRICT"),
+        nullable=False,
+    ),
+    Column(
+        "track_id",
+        ForeignKey("track.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "last_listened_at",
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=func.now(),
+    ),
+    UniqueConstraint(
+        "user_id",
+        "track_id",
+        name=constraints.LISTENER_UNIQUE_CONSTRAINT,
     ),
 )

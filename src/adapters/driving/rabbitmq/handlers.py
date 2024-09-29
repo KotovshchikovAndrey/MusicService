@@ -1,40 +1,26 @@
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from faststream.rabbit.annotations import RabbitMessage
 
-from adapters.driving.rabbitmq.schemas import RegisterArtistSchema, UploadAlbumSchema
+from adapters.driving.rabbitmq.schemas import (
+    SendOTPCodeByEmailSchema,
+    UploadAlbumSchema,
+)
 from config.ioc_container import container
 from config.settings import settings
-from domain.ports.driving.registering_artists import RegisterArtistUseCase
-from domain.ports.driving.uploading_albums import UploadAlbumUseCase
+from domain.ports.driving.album_uploading import UploadAlbumUseCase
+from domain.ports.driving.otp_code_sending import SendOTPCodeByEmailUseCase
 
 broker = RabbitBroker(settings.broker.get_connection_url())
 
 exchange = RabbitExchange(durable=True)
 
-created_artists_queue = RabbitQueue(name=settings.broker.register_created_artist_queue)
+albums_to_upload_queue = RabbitQueue(name=settings.broker.albums_to_upload_queue)
 
-reviewed_albums_queue = RabbitQueue(name=settings.broker.upload_reviewed_album_queue)
-
-
-@broker.subscriber(
-    queue=created_artists_queue,
-    exchange=exchange,
-    retry=True,
-)
-async def register_artist(message: RabbitMessage):
-    usecase = container.resolve(RegisterArtistUseCase)
-
-    try:
-        schema = RegisterArtistSchema.model_validate_json(message.body)
-        await usecase.execute(data=schema.to_dto())
-    except ValueError as exc:
-        # TODO: log invalid format message
-        print(exc)
-        await message.reject()
+email_verification_queue = RabbitQueue(name=settings.broker.email_verification_queue)
 
 
 @broker.subscriber(
-    queue=reviewed_albums_queue,
+    queue=albums_to_upload_queue,
     exchange=exchange,
     retry=True,
 )
@@ -43,6 +29,23 @@ async def upload_album(message: RabbitMessage):
 
     try:
         schema = UploadAlbumSchema.model_validate_json(message.body)
+        await usecase.execute(data=schema.to_dto())
+    except ValueError as exc:
+        # TODO: log invalid format message
+        print(exc)
+        await message.reject()
+
+
+@broker.subscriber(
+    queue=email_verification_queue,
+    exchange=exchange,
+    retry=True,
+)
+async def send_verification_email(message: RabbitMessage):
+    usecase = container.resolve(SendOTPCodeByEmailUseCase)
+
+    try:
+        schema = SendOTPCodeByEmailSchema.model_validate_json(message.body)
         await usecase.execute(data=schema.to_dto())
     except ValueError as exc:
         # TODO: log invalid format message

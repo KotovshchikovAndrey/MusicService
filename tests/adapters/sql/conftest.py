@@ -5,11 +5,12 @@ from adapters.driven.sql.models import Base as BaseModel
 from adapters.driven.sql.models.album import Album as AlbumModel
 from adapters.driven.sql.models.artist import Artist as ArtistModel
 from adapters.driven.sql.models.track import Track as TrackModel
+from adapters.driven.sql.models.user import User as UserModel
 from config.settings import settings
-
 from domain.models.entities.album import Album
 from domain.models.entities.artist import Artist
 from domain.models.entities.track import Track
+from domain.models.entities.user import User
 
 
 @pytest.fixture(scope="function")
@@ -30,7 +31,15 @@ async def prepare_database(
     album_mock: Album,
     track_mock: Track,
     artist_mock: Artist,
+    user_mock: User,
 ):
+    user_model = UserModel(
+        id=user_mock.id,
+        email=user_mock.email.value,
+        is_active=user_mock.is_active,
+        created_at=user_mock.created_at.replace(tzinfo=None),
+    )
+
     album_model = AlbumModel(
         id=album_mock.id,
         title=album_mock.title.value,
@@ -44,7 +53,6 @@ async def prepare_database(
         album_id=track_mock.album_id,
         audio_url=track_mock.audio_url.value,
         duration=track_mock.duration.value,
-        listens=track_mock.listens.value,
     )
 
     artist_model = ArtistModel(
@@ -53,5 +61,5 @@ async def prepare_database(
         avatar_url=artist_mock.avatar_url.value,
     )
 
-    session.add_all([album_model, track_model, artist_model])
+    session.add_all([user_model, album_model, track_model, artist_model])
     await session.commit()

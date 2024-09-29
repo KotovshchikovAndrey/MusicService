@@ -1,18 +1,18 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from domain.models.entities.base import BaseEntity
 from domain.models.values.avatar_url import AvatarUrl
 from domain.models.values.nickname import Nickname
 
 
-@dataclass(eq=False, kw_only=True, slots=True)
+@dataclass(eq=False, slots=True, kw_only=True)
 class BaseArtist(BaseEntity):
-    nickname: Nickname = field(init=False)
+    nickname: Nickname
 
 
-@dataclass(eq=False, kw_only=True, slots=True)
+@dataclass(eq=False, slots=True, kw_only=True)
 class Artist(BaseArtist):
-    avatar_url: AvatarUrl = field(init=False)
+    avatar_url: AvatarUrl
 
     def edit_nickname(self, nickname: str) -> None:
         self.nickname = Nickname(nickname)

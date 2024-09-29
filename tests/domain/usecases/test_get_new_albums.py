@@ -2,11 +2,11 @@ from domain.models.entities.album import AlbumInfo
 from domain.models.entities.artist import Artist
 from domain.models.entities.track import Track
 from domain.ports.driven.database.unit_of_work import UnitOfWork
-from domain.ports.driving.getting_new_albums import GetNewAlbumsDto
-from domain.usecases.get_new_albums import GetNewAlbumsUseCaseImpl
+from domain.ports.driving.album_list_getting import GetAlbumListDTO
+from domain.usecases.get_album_list import GetAlbumListUseCaseImpl
 
 
-class TestGetNewAlbumsUseCase:
+class TestGetAlbumListUseCase:
     async def test_get_new_albums_correct_output(
         self,
         uow_mock: UnitOfWork,
@@ -14,8 +14,8 @@ class TestGetNewAlbumsUseCase:
         track_mock: Track,
         artist_mock: Artist,
     ) -> None:
-        usecase = GetNewAlbumsUseCaseImpl(uow=uow_mock)
-        albums = await usecase.execute(GetNewAlbumsDto(limit=1))
+        usecase = GetAlbumListUseCaseImpl(uow=uow_mock)
+        albums = await usecase.execute(GetAlbumListDTO(limit=1))
 
         assert len(albums) == 1
         for album in albums:

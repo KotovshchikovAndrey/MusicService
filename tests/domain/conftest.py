@@ -6,14 +6,13 @@ import pytest
 
 from domain.models.entities.album import Album, AlbumInfo
 from domain.models.entities.artist import Artist
-from domain.models.entities.track import ChartedTrack, Track
+from domain.models.entities.track import PopularTrack, Track
 from domain.ports.driven.blob_storage import BlobStorage
 from domain.ports.driven.database.album_repository import AlbumRepository
 from domain.ports.driven.database.artist_repository import ArtistRepository
 from domain.ports.driven.database.track_repository import TrackRepository
 from domain.ports.driven.database.unit_of_work import UnitOfWork
-from domain.ports.driven.distribution_service import DistributionServiceAdapter
-from domain.utils.files import add_url_for_downloaded_file
+from domain.ports.driven.file_downloader import FileDownloader
 
 
 @pytest.fixture(scope="function")
@@ -46,29 +45,26 @@ def blob_storage_mock(audio_mock: BytesIO) -> BlobStorage:
             yield byte
 
     blob_storage.read = MagicMock(return_value=audio_stream())
-    blob_storage_mock.get_byte_size = AsyncMock(return_value=audio_mock.getvalue())
+    blob_storage.get_byte_size = AsyncMock(return_value=len(audio_mock.getvalue()))
     return blob_storage
 
 
 @pytest.fixture(scope="function")
-def distribution_service_mock(audio_mock: BytesIO) -> DistributionServiceAdapter:
-    mocked_distribution_service = MagicMock(spec=DistributionServiceAdapter)
-    mocked_distribution_service.download_file = add_url_for_downloaded_file(
-        function=AsyncMock(return_value=audio_mock)
-    )
-
-    return mocked_distribution_service
+def file_downloader_mock(audio_mock: BytesIO) -> FileDownloader:
+    file_downloader = MagicMock(spec=FileDownloader)
+    file_downloader.download_by_url = AsyncMock(return_value=audio_mock)
+    return file_downloader
 
 
 @pytest.fixture(scope="function")
 def track_repository_mock(
     track_mock: Track,
-    charted_track_mock: ChartedTrack,
+    popular_track_mock: PopularTrack,
 ) -> TrackRepository:
     repository = MagicMock(spec=TrackRepository)
     repository.get_by_id = AsyncMock(return_value=track_mock)
     repository.save = AsyncMock()
-    repository.get_top_chart_for_period = AsyncMock(return_value=[charted_track_mock])
+    repository.get_most_popular_for_period = AsyncMock(return_value=[popular_track_mock])
     return repository
 
 

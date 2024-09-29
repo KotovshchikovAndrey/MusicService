@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from dataclasses import dataclass
 from typing import Self
 
 from domain.models.builders.base import BaseBuilder
@@ -8,17 +7,21 @@ from domain.models.values.cover_url import CoverUrl
 from domain.models.values.title import Title
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(eq=False, init=False, slots=True)
 class AlbumBuilder(BaseBuilder[Album]):
-    _album: Album = field(init=False, default_factory=Album)
+    _title: Title
+    _cover_url: CoverUrl
 
     def set_title(self, title: str) -> Self:
-        self._album.title = Title(title)
+        self._title = Title(title)
         return self
 
     def set_cover(self, cover_url: str) -> Self:
-        self._album.cover_url = CoverUrl(cover_url)
+        self._cover_url = CoverUrl(cover_url)
         return self
 
     def build(self) -> Album:
-        return self._album
+        return Album(
+            title=self._title,
+            cover_url=self._cover_url,
+        )

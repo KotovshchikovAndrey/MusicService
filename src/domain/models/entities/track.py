@@ -10,23 +10,23 @@ from domain.models.values.listens import Listens
 from domain.models.values.title import Title
 
 
-@dataclass(eq=False, kw_only=True, slots=True)
+@dataclass(eq=False, slots=True, kw_only=True)
 class Track(BaseEntity):
-    album_id: UUID = field(init=False)
-    title: Title = field(init=False)
-    audio_url: AudioUrl = field(init=False)
-    duration: Duration = field(init=False)
-    listens: Listens = field(init=False, default=Listens(0))
+    album_id: UUID
+    title: Title
+    audio_url: AudioUrl
+    duration: Duration
 
     def edit_title(self, title: str) -> None:
         self.title = Title(title)
 
 
-@dataclass(eq=False, kw_only=True, slots=True)
+@dataclass(eq=False, slots=True, kw_only=True)
 class TrackItem(Track):
-    artists: tuple[BaseArtist] = field(init=False, default_factory=tuple)
+    artists: tuple[BaseArtist] = field(default_factory=tuple)
 
 
-@dataclass(eq=False, kw_only=True, slots=True)
-class ChartedTrack(TrackItem):
-    cover_url: CoverUrl = field(init=False)
+@dataclass(eq=False, slots=True, kw_only=True)
+class PopularTrack(TrackItem):
+    cover_url: CoverUrl
+    listens: Listens = field(default=Listens(0))

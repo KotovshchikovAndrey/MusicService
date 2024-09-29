@@ -9,9 +9,7 @@ class Duration(BaseValue[int]):
 
     def validate(self) -> None:
         if self.value <= 0:
-            raise ValueError(
-                f"Invalid track duration '{self.value}'. Expected positive integer greater than 0"
-            )
+            raise ValueError("Duration cannot be a negative number")
 
         if self.value > self._max_seconds_duration:
-            raise ValueError(f"Too long track duration '{self.value}'")
+            raise ValueError("Too long duration")

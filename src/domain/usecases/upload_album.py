@@ -1,39 +1,39 @@
 import asyncio
-from typing import Iterable
 from uuid import UUID
 
-from domain.exceptions.album import InvalidAlbumUploadingData
+from domain.exceptions.album import InvalidAlbumInput
 from domain.models.builders.album import AlbumBuilder
 from domain.models.builders.track import TrackBuilder
 from domain.models.entities.album import Album
 from domain.models.entities.track import Track
 from domain.ports.driven.blob_storage import BlobStorage
 from domain.ports.driven.database.unit_of_work import UnitOfWork
-from domain.ports.driven.distribution_service import DistributionServiceAdapter
-from domain.ports.driving.uploading_albums import (
+from domain.ports.driven.file_downloader import FileDownloader
+from domain.ports.driving.album_uploading import (
     AlbumMetaData,
     TrackMetaData,
-    UploadAlbumDto,
+    UploadAlbumDTO,
     UploadAlbumUseCase,
 )
+from domain.usecases.mixins.file_manager_mixin import FileManagerMixin
 
 
-class UploadAlbumUseCaseImpl(UploadAlbumUseCase):
+class UploadAlbumUseCaseImpl(FileManagerMixin, UploadAlbumUseCase):
     _uow: UnitOfWork
     _blob_storage: BlobStorage
-    _distribution_service: DistributionServiceAdapter
+    _file_downloader: FileDownloader
 
     def __init__(
         self,
         uow: UnitOfWork,
         blob_storage: BlobStorage,
-        distribution_service: DistributionServiceAdapter,
+        file_downloader: FileDownloader,
     ) -> None:
         self._uow = uow
         self._blob_storage = blob_storage
-        self._distribution_service = distribution_service
+        self._file_downloader = file_downloader
 
-    async def execute(self, data: UploadAlbumDto) -> None:
+    async def execute(self, data: UploadAlbumDTO) -> None:
         artist_ids_for_check = set()
         for track_data in data.tracks:
             artist_ids_for_check.update(track_data.artist_ids)
@@ -55,48 +55,48 @@ class UploadAlbumUseCaseImpl(UploadAlbumUseCase):
 
             await uow.commit()
 
+        return album.id
+
     async def _check_all_artists_exists(self, artist_ids: set[UUID]) -> None:
         async with self._uow as uow:
             artists = await uow.artists.filter_by_ids(artist_ids)
             if len(artist_ids) != len(artists):
-                raise InvalidAlbumUploadingData(
-                    reason="One or more of the 'artist_ids' not found"
+                raise InvalidAlbumInput(
+                    detail="One or more of the 'artist_ids' not found"
                 )
 
     async def _prepare_album_to_save(self, data: AlbumMetaData) -> Album:
-        cover = await self._distribution_service.download_file(data.cover_download_url)
+        cover_url = await self._transfer_file_to_blob_storage(data.cover_download_url)
         album = (
             AlbumBuilder()
             .set_title(title=data.title)
-            .set_cover(cover_url=cover.url)
+            .set_cover(cover_url=cover_url)
             .build()
         )
 
-        await self._blob_storage.put(blob_url=album.cover_url.value, blob=cover)
         return album
 
     async def _prepare_tracks_to_save(
-        self, album: Album, data: Iterable[TrackMetaData]
+        self, album: Album, data: list[TrackMetaData]
     ) -> list[Track]:
         tasks = []
         async with asyncio.TaskGroup() as group:
             for track_data in data:
-                coro = self._prepare_track_to_save(album=album, data=track_data)
-                task = group.create_task(coro)
+                coroutine = self._prepare_track_to_save(album=album, data=track_data)
+                task = group.create_task(coroutine)
                 tasks.append(task)
 
         return [task.result() for task in tasks]
 
     async def _prepare_track_to_save(self, album: Album, data: TrackMetaData) -> Track:
-        audio = await self._distribution_service.download_file(data.audio_download_url)
+        audio_url = await self._transfer_file_to_blob_storage(data.audio_download_url)
         track = (
             TrackBuilder()
             .set_album(album_id=album.id)
             .set_title(title=data.title)
             .set_duration(duration=data.duration)
-            .set_audio(audio_url=audio.url)
+            .set_audio(audio_url=audio_url)
             .build()
         )
 
-        await self._blob_storage.put(blob_url=track.audio_url.value, blob=audio)
         return track

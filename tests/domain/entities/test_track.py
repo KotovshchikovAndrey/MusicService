@@ -46,4 +46,3 @@ class TestTrack:
         assert new_track.duration.value == duration
         assert new_track.audio_url.value == audio_url
         assert new_track.album_id == album_mock.id
-        assert new_track.listens.value == 0

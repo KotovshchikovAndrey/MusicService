@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, status
 from fastapi.responses import StreamingResponse
 
 from config.ioc_container import container
-from domain.ports.driving.listening_tracks import ListenTrackDto, ListenTrackUseCase
+from domain.ports.driving.track_listening import ListenTrackDTO, ListenTrackUseCase
 
 router = APIRouter(prefix="/tracks")
 
@@ -17,10 +17,10 @@ async def listen_track(track_id: str, request: Request):
         start_range, end_range = content_range.split("=")[-1].split("-")
         start_byte = int(start_range)
         if end_range:
-            end_byte = int(end_range) + 1
+            end_byte = int(end_range)
 
     usecase = container.resolve(ListenTrackUseCase)
-    data = ListenTrackDto(id=track_id, start_byte=start_byte, end_byte=end_byte)
+    data = ListenTrackDTO(track_id=track_id, start_byte=start_byte, end_byte=end_byte)
     output = await usecase.execute(data=data)
 
     return StreamingResponse(

@@ -6,13 +6,16 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
 
-from adapters.driven.sql.mappers.artist import map_to_artist, map_to_artist_model
+from adapters.driven.sql.mappers.artist import (
+    map_to_artist,
+    map_to_insert_artist_values,
+)
 from adapters.driven.sql.models.artist import Artist as ArtistModel
 from domain.models.entities.artist import Artist
 from domain.ports.driven.database.artist_repository import ArtistRepository
 
 
-class ArtistSqlRepository(ArtistRepository):
+class ArtistSQLRepository(ArtistRepository):
     _session: AsyncSession
 
     def __init__(self, session: AsyncSession) -> None:
@@ -40,8 +43,8 @@ class ArtistSqlRepository(ArtistRepository):
         return [map_to_artist(model) for model in models]
 
     async def save(self, artist: Artist) -> None:
-        model = map_to_artist_model(artist)
-        stmt = insert(ArtistModel).values(model.to_dict_values())
+        values = map_to_insert_artist_values(artist)
+        stmt = insert(ArtistModel).values(values)
         stmt = stmt.on_conflict_do_update(
             index_elements=[ArtistModel.id],
             set_=dict(

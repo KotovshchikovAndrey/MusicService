@@ -7,3 +7,4 @@ __pycache__
 test.sql
 index.html
 .vscode
+.mypy_cache

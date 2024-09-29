@@ -6,7 +6,7 @@ from domain.models.entities.playlist import Playlist, PlaylistInfo
 from domain.ports.driven.database.playlist_repository import PlaylistRepository
 
 
-class PlaylistSqlRepository(PlaylistRepository):
+class PlaylistSQLRepository(PlaylistRepository):
     _session: AsyncSession
 
     def __init__(self, session: AsyncSession) -> None:

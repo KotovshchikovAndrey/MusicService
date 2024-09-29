@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Self
 from uuid import UUID
 
@@ -8,21 +8,27 @@ from domain.models.values.avatar_url import AvatarUrl
 from domain.models.values.nickname import Nickname
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(eq=False, init=False, slots=True)
 class ArtistBuilder(BaseBuilder[Artist]):
-    _artist: Artist = field(init=False, default_factory=Artist)
+    _id: UUID
+    _nickname: Nickname
+    _avatar_url: AvatarUrl
 
-    def set_user(self, user_id: UUID) -> Self:
-        self._artist.id = user_id
+    def set_id(self, user_id: UUID) -> Self:
+        self._id = user_id
         return self
 
     def set_nickname(self, nickname: str) -> Self:
-        self._artist.nickname = Nickname(nickname)
+        self._nickname = Nickname(nickname)
         return self
 
     def set_avatar(self, avatar_url: str) -> Self:
-        self._artist.avatar_url = AvatarUrl(avatar_url)
+        self._avatar_url = AvatarUrl(avatar_url)
         return self
 
     def build(self) -> Artist:
-        return self._artist
+        return Artist(
+            id=self._id,
+            nickname=self._nickname,
+            avatar_url=self._avatar_url,
+        )

@@ -1,19 +1,11 @@
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import (
-    BigInteger,
-    CheckConstraint,
-    ForeignKey,
-    Integer,
-    Numeric,
-    String,
-    orm,
-)
+from sqlalchemy import ForeignKey, Numeric, String, and_, func, orm, select
 
-from adapters.driven.sql import consts
 from adapters.driven.sql.models.artist import Artist
-from adapters.driven.sql.models.associations import track_artist
+from adapters.driven.sql.models.associations import listener, track_artist
 from adapters.driven.sql.models.base import Base
 from adapters.driven.sql.models.mixins import TitleMixin
 
@@ -22,13 +14,6 @@ if TYPE_CHECKING:
 
 
 class Track(TitleMixin, Base):
-    __table_args__ = (
-        CheckConstraint(
-            "listens >= 0",
-            name=consts.LISTENS_CHECK_CONSTRAINT,
-        ),
-    )
-
     audio_url: orm.Mapped[str] = orm.mapped_column(
         String(255),
         unique=True,
@@ -40,24 +25,9 @@ class Track(TitleMixin, Base):
         nullable=False,
     )
 
-    listens: orm.Mapped[int] = orm.mapped_column(
-        BigInteger(),
-        nullable=False,
-        default=0,
-        server_default="0",
-    )
-
-    listens_per_day: orm.Mapped[int] = orm.mapped_column(
-        Integer(),
-        nullable=False,
-        default=0,
-        server_default="0",
-    )
-
     album_id: orm.Mapped[UUID] = orm.mapped_column(
         ForeignKey("album.id", ondelete="CASCADE"),
         nullable=False,
-        name="album_id",
     )
 
     album: orm.Mapped["Album"] = orm.relationship(
@@ -69,3 +39,22 @@ class Track(TitleMixin, Base):
         lazy="raise",
         secondary=track_artist,
     )
+
+
+Track.listens = orm.column_property(
+    select(func.count(listener.c.user_id))
+    .where(listener.c.track_id == Track.id)
+    .scalar_subquery()
+)
+
+Track.listens_per_day = orm.column_property(
+    select(func.count(listener.c.user_id))
+    .where(
+        and_(
+            listener.c.track_id == Track.id,
+            listener.c.last_listened_at
+            >= datetime.now(UTC).replace(tzinfo=None) - timedelta(days=1),
+        )
+    )
+    .scalar_subquery()
+)

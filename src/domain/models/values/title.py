@@ -9,7 +9,7 @@ class Title(BaseValue[str]):
 
     def validate(self) -> None:
         if not self.value:
-            raise ValueError("Title should not be an empty string")
+            raise ValueError("Title cannot be an empty string")
 
         if len(self.value) > self._max_length:
-            raise ValueError(f"Too long title '{self.value}'")
+            raise ValueError("Too long title")

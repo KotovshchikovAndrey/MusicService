@@ -43,14 +43,13 @@ class S3BlobStorage(BlobStorage):
             use_ssl=self._use_ssl,
         ) as s3_client:
             if end_byte is None:
-                end_byte = self.get_byte_size(blob_url)
+                end_byte = await self.get_byte_size(blob_url) - 1
 
-            for offset in range(start_byte, end_byte, chunk_size):
-                end = min(offset + chunk_size - 1, end_byte - 1)
+            for offset in range(start_byte, end_byte + 1, chunk_size):
                 blob = await s3_client.get_object(
                     Bucket=self._bucket_name,
                     Key=self._get_key_from_url(blob_url),
-                    Range=f"bytes={offset}-{end}",
+                    Range=f"bytes={offset}-{min(offset + chunk_size - 1, end_byte)}",
                 )
 
                 async with blob["Body"] as io:

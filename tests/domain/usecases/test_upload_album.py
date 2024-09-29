@@ -3,17 +3,17 @@ from uuid import uuid4
 
 import pytest
 
-from domain.exceptions.album import InvalidAlbumUploadingData
+from domain.exceptions.album import InvalidAlbumInput
 from domain.models.entities.album import Album
 from domain.models.entities.artist import Artist
 from domain.models.entities.track import Track
 from domain.ports.driven.blob_storage import BlobStorage
 from domain.ports.driven.database.unit_of_work import UnitOfWork
-from domain.ports.driven.distribution_service import DistributionServiceAdapter
-from domain.ports.driving.uploading_albums import (
+from domain.ports.driven.file_downloader import FileDownloader
+from domain.ports.driving.album_uploading import (
     AlbumMetaData,
     TrackMetaData,
-    UploadAlbumDto,
+    UploadAlbumDTO,
 )
 from domain.usecases.upload_album import UploadAlbumUseCaseImpl
 
@@ -35,11 +35,11 @@ class TestUploadAlbumUseCase:
             artist_ids={artist_mock.id},
         )
 
-    async def test_execute_success(
+    async def test_execute_successfully(
         self,
         uow_mock: UnitOfWork,
         blob_storage_mock: BlobStorage,
-        distribution_service_mock: DistributionServiceAdapter,
+        file_downloader_mock: FileDownloader,
         album_valid_data: dict,
         track_valid_data: dict,
         track_mock: Track,
@@ -48,22 +48,27 @@ class TestUploadAlbumUseCase:
         usecase = UploadAlbumUseCaseImpl(
             uow=uow_mock,
             blob_storage=blob_storage_mock,
-            distribution_service=distribution_service_mock,
+            file_downloader=file_downloader_mock,
         )
 
-        data = UploadAlbumDto(
+        data = UploadAlbumDTO(
             album=AlbumMetaData(**album_valid_data),
             tracks=[TrackMetaData(**track_valid_data)],
         )
 
-        with patch(
-            "domain.models.builders.track.TrackBuilder.build"
-        ) as track_builder_mock, patch(
-            "domain.models.builders.album.AlbumBuilder.build"
-        ) as album_builder_mock:
+        with (
+            patch(
+                "domain.models.builders.track.TrackBuilder.build"
+            ) as track_builder_mock,
+            patch(
+                "domain.models.builders.album.AlbumBuilder.build"
+            ) as album_builder_mock,
+        ):
             track_builder_mock.return_value = track_mock
             album_builder_mock.return_value = album_mock
-            await usecase.execute(data)
+
+            album_id = await usecase.execute(data)
+            assert album_mock.id == album_id
 
             uow_mock.albums.save.assert_called_once_with(album_mock)
             uow_mock.tracks.save_all.assert_called_once_with([track_mock])
@@ -77,7 +82,7 @@ class TestUploadAlbumUseCase:
     @pytest.mark.parametrize(
         "tracks",
         (
-            (
+            [
                 TrackMetaData(
                     title="Track",
                     audio_download_url="/audio_0.mp3",
@@ -96,29 +101,25 @@ class TestUploadAlbumUseCase:
                     artist_ids={uuid4(), uuid4(), uuid4()},
                     duration=100,
                 ),
-            ),
+            ],
         ),
     )
     async def test_set_artists_calls(
         self,
         uow_mock: UnitOfWork,
         blob_storage_mock: BlobStorage,
-        distribution_service_mock: DistributionServiceAdapter,
+        file_downloader_mock: FileDownloader,
         album_valid_data: dict,
-        tracks: tuple[TrackMetaData],
+        tracks: list[TrackMetaData],
         track_mock: Track,
     ) -> None:
         usecase = UploadAlbumUseCaseImpl(
             uow=uow_mock,
             blob_storage=blob_storage_mock,
-            distribution_service=distribution_service_mock,
+            file_downloader=file_downloader_mock,
         )
 
-        data = UploadAlbumDto(
-            album=AlbumMetaData(**album_valid_data),
-            tracks=tracks,
-        )
-
+        data = UploadAlbumDTO(album=AlbumMetaData(**album_valid_data), tracks=tracks)
         with patch(
             "domain.models.builders.track.TrackBuilder.build"
         ) as track_builder_mock:
@@ -142,25 +143,25 @@ class TestUploadAlbumUseCase:
         self,
         uow_mock: UnitOfWork,
         blob_storage_mock: BlobStorage,
-        distribution_service_mock: DistributionServiceAdapter,
+        file_downloader_mock: FileDownloader,
         album_valid_data: dict,
         track_valid_data: dict,
     ) -> None:
         usecase = UploadAlbumUseCaseImpl(
             uow=uow_mock,
             blob_storage=blob_storage_mock,
-            distribution_service=distribution_service_mock,
+            file_downloader=file_downloader_mock,
         )
 
-        data = UploadAlbumDto(
+        data = UploadAlbumDTO(
             album=AlbumMetaData(**album_valid_data),
             tracks=[TrackMetaData(**track_valid_data)],
         )
 
-        with pytest.raises(InvalidAlbumUploadingData):
+        with pytest.raises(InvalidAlbumInput):
             uow_mock.artists.filter_by_ids.return_value = []
             await usecase.execute(data)
 
-        with pytest.raises(InvalidAlbumUploadingData):
+        with pytest.raises(ValueError):
             track_valid_data["artist_ids"] = set()
             TrackMetaData(**track_valid_data)

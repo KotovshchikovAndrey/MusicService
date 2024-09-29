@@ -1,32 +1,19 @@
 from typing import Annotated, Iterable
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field, FileUrl
 
-from domain.ports.driving.registering_artists import RegisterArtistDto
-from domain.ports.driving.uploading_albums import (
+from domain.ports.driving.album_uploading import (
     AlbumMetaData,
     TrackMetaData,
-    UploadAlbumDto,
+    UploadAlbumDTO,
 )
-
-
-class RegisterArtistSchema(BaseModel):
-    user_id: UUID
-    nickname: Annotated[str, Field(max_length=70)]
-    avatar_download_url: Annotated[str, Field(max_length=255)]
-
-    def to_dto(self) -> RegisterArtistDto:
-        return RegisterArtistDto(
-            id=self.user_id,
-            nickname=self.nickname,
-            avatar_download_url=self.avatar_download_url,
-        )
+from domain.ports.driving.otp_code_sending import SendOTPCodeByEmailDTO
 
 
 class AlbumMetaDataSchema(BaseModel):
-    title: Annotated[str, Field(max_length=70)]
-    cover_download_url: Annotated[str, Field(max_length=255)]
+    title: str
+    cover_download_url: FileUrl
 
     def to_dto(self) -> AlbumMetaData:
         return AlbumMetaData(
@@ -36,9 +23,9 @@ class AlbumMetaDataSchema(BaseModel):
 
 
 class TrackMetaDataSchema(BaseModel):
-    title: Annotated[str, Field(max_length=70)]
-    duration: Annotated[int, Field(gt=0, lte=5 * 60)]
-    audio_download_url: Annotated[str, Field(max_length=255)]
+    title: str
+    duration: Annotated[int, Field(gt=0)]
+    audio_download_url: FileUrl
     artist_ids: Annotated[set[UUID], Field(min_length=1)]
 
     def to_dto(self) -> TrackMetaData:
@@ -54,8 +41,19 @@ class UploadAlbumSchema(BaseModel):
     album: AlbumMetaDataSchema
     tracks: Iterable[TrackMetaDataSchema]
 
-    def to_dto(self) -> UploadAlbumDto:
-        return UploadAlbumDto(
+    def to_dto(self) -> UploadAlbumDTO:
+        return UploadAlbumDTO(
             album=self.album.to_dto(),
             tracks=[track.to_dto() for track in self.tracks],
+        )
+
+
+class SendOTPCodeByEmailSchema(BaseModel):
+    email: EmailStr
+    code: str
+
+    def to_dto(self) -> SendOTPCodeByEmailDTO:
+        return SendOTPCodeByEmailDTO(
+            email=self.email,
+            code=self.code,
         )

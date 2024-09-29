@@ -1,45 +1,48 @@
-from domain.exceptions.artist import ArtistExists
+from uuid import UUID
+
 from domain.models.builders.artist import ArtistBuilder
 from domain.ports.driven.blob_storage import BlobStorage
 from domain.ports.driven.database.unit_of_work import UnitOfWork
-from domain.ports.driven.distribution_service import DistributionServiceAdapter
-from domain.ports.driving.registering_artists import (
-    RegisterArtistDto,
+from domain.ports.driven.file_downloader import FileDownloader
+from domain.ports.driving.artist_registration import (
+    RegisterArtistDTO,
     RegisterArtistUseCase,
 )
+from domain.usecases.mixins.file_manager_mixin import FileManagerMixin
 
 
-class RegisterArtistUseCaseImpl(RegisterArtistUseCase):
+class RegisterArtistUseCaseImpl(FileManagerMixin, RegisterArtistUseCase):
     _uow: UnitOfWork
     _blob_storage: BlobStorage
-    _distribution_service: DistributionServiceAdapter
+    _file_downloader: FileDownloader
 
     def __init__(
         self,
         uow: UnitOfWork,
         blob_storage: BlobStorage,
-        distribution_service: DistributionServiceAdapter,
+        file_downloader: FileDownloader,
     ) -> None:
         self._uow = uow
         self._blob_storage = blob_storage
-        self._distribution_service = distribution_service
+        self._file_downloader = file_downloader
 
-    async def execute(self, data: RegisterArtistDto) -> None:
+    async def execute(self, data: RegisterArtistDTO) -> UUID:
         async with self._uow as uow:
-            artist = await uow.artists.get_by_id(data.id)
+            artist = await uow.artists.get_by_id(data.user_id)
             if artist is not None:
-                raise ArtistExists()
+                return artist.id
 
-        avatar = await self._distribution_service.download_file(data.avatar_download_url)
+        avatar_url = await self._transfer_file_to_blob_storage(data.avatar_download_url)
         artist = (
             ArtistBuilder()
-            .set_user(user_id=data.user_id)
+            .set_id(user_id=data.user_id)
             .set_nickname(nickname=data.nickname)
-            .set_avatar(avatar_url=avatar.url)
+            .set_avatar(avatar_url=avatar_url)
             .build()
         )
 
-        await self._blob_storage.put(blob_url=artist.avatar_url.value, blob=avatar)
         async with self._uow as uow:
             await uow.artists.save(artist)
             await uow.commit()
+
+        return artist.id

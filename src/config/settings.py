@@ -30,15 +30,22 @@ class DatabaseSettings(Settings):
     db_name: Annotated[str, Field(alias="POSTGRES_DB_NAME")]
 
     def get_connection_url(self) -> str:
-        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
+        return (
+            f"postgresql+asyncpg://{self.user}:{self.password}"
+            f"@{self.host}:{self.port}"
+            f"/{self.db_name}"
+        )
 
     def get_test_connection_url(self) -> str:
-        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/test_{self.db_name}"
+        return (
+            f"postgresql+asyncpg://{self.user}:{self.password}"
+            f"@{self.host}:{self.port}"
+            f"/test_{self.db_name}"
+        )
 
 
-class SearchSettings(Settings):
-    host: Annotated[str, Field(alias="ELASTIC_SEARCH_HOST")]
-    port: Annotated[int, Field(alias="ELASTIC_SEARCH_PORT")]
+class SearchEngineSettings(Settings):
+    address: Annotated[str, Field(alias="ELASTIC_SEARCH_ADDRESS")]
     track_index: Annotated[str, Field(alias="ELASTIC_SEARCH_TRACK_INDEX")]
 
 
@@ -48,18 +55,32 @@ class BrokerSettings(Settings):
     user: Annotated[str, Field(alias="RABBITMQ_USER")]
     password: Annotated[str, Field(alias="RABBITMQ_PASSWORD")]
 
-    register_created_artist_queue: Annotated[
+    albums_to_upload_queue: Annotated[
         str,
-        Field(alias="RABBITMQ_REGISTER_CREATED_ARTIST_QUEUE"),
+        Field(alias="RABBITMQ_ALBUMS_TO_UPLOAD_QUEUE"),
     ]
 
-    upload_reviewed_album_queue: Annotated[
+    email_verification_queue: Annotated[
         str,
-        Field(alias="RABBITMQ_UPLOAD_REVIEWED_ALBUM_QUEUE"),
+        Field(alias="RABBITMQ_EMAIL_VERIFICATION_QUEUE"),
     ]
 
     def get_connection_url(self) -> str:
         return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}/"
+
+
+class SmtpSettings(Settings):
+    host: Annotated[str, Field(alias="SMTP_HOST")]
+    port: Annotated[int, Field(alias="SMTP_PORT")]
+    username: Annotated[str, Field(alias="SMTP_USERNAME")]
+    password: Annotated[str, Field(alias="SMTP_PASSWORD")]
+
+    use_tls: Annotated[bool, Field(default=True)]
+
+
+class AuthSettings(Settings):
+    access_token_secret: Annotated[str, Field(alias="ACCESS_TOKEN_SECRET")]
+    refresh_token_secret: Annotated[str, Field(alias="REFRESH_TOKEN_SECRET")]
 
 
 class AppSettings(BaseModel):
@@ -69,8 +90,10 @@ class AppSettings(BaseModel):
 
     database: DatabaseSettings = DatabaseSettings()
     blob_storage: BlobStorageSettings = BlobStorageSettings()
-    search: SearchSettings = SearchSettings()
+    search_engine: SearchEngineSettings = SearchEngineSettings()
     broker: BrokerSettings = BrokerSettings()
+    smtp: SmtpSettings = SmtpSettings()
+    auth: AuthSettings = AuthSettings()
 
 
 settings = AppSettings()

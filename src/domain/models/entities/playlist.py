@@ -8,12 +8,12 @@ from domain.models.values.description import Description
 from domain.models.values.title import Title
 
 
-@dataclass(eq=False, kw_only=True, slots=True)
+@dataclass(eq=False, slots=True, kw_only=True)
 class Playlist(BaseEntity):
-    user_id: UUID = field(init=False)
-    title: Title = field(init=False)
-    cover_url: CoverUrl = field(init=False)
-    description: Description = field(init=False, default=Description(None))
+    user_id: UUID
+    title: Title
+    cover_url: CoverUrl
+    description: Description = field(default=Description(None))
 
     def edit_title(self, title: str) -> None:
         self.title = Title(title)
@@ -28,6 +28,6 @@ class Playlist(BaseEntity):
         self.description = Description(None)
 
 
-@dataclass(eq=False, kw_only=True, slots=True)
+@dataclass(eq=False, slots=True, kw_only=True)
 class PlaylistInfo(Playlist):
-    tracks: tuple[TrackItem] = field(init=False, default_factory=tuple)
+    tracks: tuple[TrackItem] = field(default_factory=tuple)

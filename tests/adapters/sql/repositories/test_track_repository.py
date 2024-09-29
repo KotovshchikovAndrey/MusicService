@@ -3,16 +3,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from adapters.driven.sql.models.track import Track as TrackModel
-from adapters.driven.sql.repositories.track import TrackSqlRepository
+from adapters.driven.sql.repositories.track import TrackSQLRepository
 from domain.models.builders.track import TrackBuilder
 from domain.models.entities.album import Album
 from domain.models.entities.artist import Artist
 from domain.models.entities.track import Track
 
 
-class TestTrackSqlRepository:
+class TestTrackSQLRepository:
     async def test_get_by_id(self, session: AsyncSession, track_mock: Track) -> None:
-        repository = TrackSqlRepository(session=session)
+        repository = TrackSQLRepository(session=session)
         track = await repository.get_by_id(track_mock.id)
 
         assert track is not None
@@ -21,10 +21,9 @@ class TestTrackSqlRepository:
         assert track.album_id == track_mock.album_id
         assert track.audio_url == track_mock.audio_url
         assert track.duration == track_mock.duration
-        assert track.listens == track_mock.listens
 
     async def test_update(self, session: AsyncSession, track_mock: Track) -> None:
-        repository = TrackSqlRepository(session=session)
+        repository = TrackSQLRepository(session=session)
         track = await repository.get_by_id(track_mock.id)
         assert track is not None
 
@@ -42,7 +41,6 @@ class TestTrackSqlRepository:
         assert updated_track.album_id == track_mock.album_id
         assert updated_track.audio_url == track_mock.audio_url
         assert updated_track.duration == track_mock.duration
-        assert updated_track.listens == track_mock.listens
 
     async def test_create(self, session: AsyncSession, album_mock: Album) -> None:
         new_track = (
@@ -54,7 +52,7 @@ class TestTrackSqlRepository:
             .build()
         )
 
-        repository = TrackSqlRepository(session=session)
+        repository = TrackSQLRepository(session=session)
         track = await repository.get_by_id(new_track.id)
         assert track is None
 
@@ -67,7 +65,6 @@ class TestTrackSqlRepository:
         assert track.album_id == new_track.album_id
         assert track.audio_url == new_track.audio_url
         assert track.duration == new_track.duration
-        assert track.listens == new_track.listens
 
     async def test_create_all(self, session: AsyncSession, album_mock: Album) -> None:
         new_tracks = []
@@ -81,7 +78,7 @@ class TestTrackSqlRepository:
                 .build()
             )
 
-        repository = TrackSqlRepository(session=session)
+        repository = TrackSQLRepository(session=session)
         for new_track in new_tracks:
             track_in_db = await repository.get_by_id(track_id=new_track.id)
             assert track_in_db is None
@@ -104,7 +101,7 @@ class TestTrackSqlRepository:
         assert track_model is not None
         artist_count_before_update = len(track_model.artists)
 
-        repository = TrackSqlRepository(session=session)
+        repository = TrackSQLRepository(session=session)
         artist_ids = (artist_mock.id,)
         await repository.set_artists(track_id=track_mock.id, artist_ids=artist_ids)
         await session.refresh(track_model)
@@ -114,18 +111,4 @@ class TestTrackSqlRepository:
         assert all(
             artist_id in [artist.id for artist in updated_track_model.artists]
             for artist_id in artist_ids
-        )
-
-    async def test_increment_listens(
-        self, session: AsyncSession, track_mock: Track
-    ) -> None:
-        repository = TrackSqlRepository(session=session)
-        track_before_increment = await repository.get_by_id(track_mock.id)
-        assert track_before_increment is not None
-
-        await repository.increment_listens(track_mock.id)
-        track_after_increment = await repository.get_by_id(track_mock.id)
-        assert (
-            track_after_increment.listens.value
-            == track_before_increment.listens.value + 1
         )

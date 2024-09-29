@@ -3,11 +3,11 @@ from io import BytesIO
 
 import httpx
 
-from domain.ports.driven.distribution_service import DistributionServiceAdapter
-from domain.utils.files import add_url_for_downloaded_file
+from domain.ports.driven.file_downloader import FileDownloader
+from utils.files import add_url_for_downloaded_file
 
 
-class DistributionServiceHttpAdapter(DistributionServiceAdapter):
+class DistributionServiceHttpAdapter(FileDownloader):
     _api_url: str
 
     def __init__(self, api_url: str) -> None:

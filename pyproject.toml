@@ -9,10 +9,7 @@ packages = [{ include = "src", from = "." }]
 python = "^3.12"
 fastapi = "^0.111.1"
 pydantic-settings = "^2.3.4"
-pytest = "^8.3.2"
-pytest-asyncio = "^0.23.8"
 aiofiles = "^24.1.0"
-isort = "^5.13.2"
 aioboto3 = "^13.1.1"
 sqlalchemy = "^2.0.31"
 alembic = "^1.13.2"
@@ -21,12 +18,28 @@ strawberry-graphql = {extras = ["fastapi"], version = "^0.237.3"}
 httpx = "^0.27.0"
 faststream = {extras = ["rabbit"], version = "^0.5.18"}
 punq = "^0.7.0"
+motor = "^3.5.1"
+python-logstash-async = "^3.0.0"
+pyjwt = "^2.9.0"
+aiosmtplib = "^3.0.2"
+pytest-asyncio = "^0.24.0"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+isort = "^5.13.2"
+flake8 = "^7.1.1"
+black = "^24.8.0"
+pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.black]
 line-length = 90
+target_version = ["py312"]
+
+[tool.isort]
+profile = "black"
+py_version = 312
+multi_line_output = 3

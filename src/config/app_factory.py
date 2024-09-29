@@ -1,4 +1,6 @@
+import logging
 from contextlib import asynccontextmanager
+from logging.config import dictConfig
 from typing import Protocol
 
 from fastapi import FastAPI, Request, status
@@ -7,10 +9,11 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.types import ASGIApp
 
-from adapters.driven.sql.connection import SqlDatabaseConnection
+from adapters.driven.sql.connection import SQLDatabaseConnection
 from adapters.driving.graphql import router as graphql_router
 from adapters.driving.rest.v1 import router as v1_router
 from config.ioc_container import container
+from config.logger import LoggerConfig
 from domain.exceptions.base import BaseDomainException
 
 
@@ -20,6 +23,7 @@ class ASGIAppFactory(Protocol):
 
 class FastApiAppFactory(ASGIAppFactory):
     def create(self) -> ASGIApp:
+        dictConfig(LoggerConfig().model_dump())
         container.init()
 
         app = FastAPI(lifespan=self._lifespan)
@@ -34,9 +38,12 @@ class FastApiAppFactory(ASGIAppFactory):
 
     @asynccontextmanager
     async def _lifespan(self, _: FastAPI):
-        database = container.resolve(SqlDatabaseConnection)
+        database = container.resolve(SQLDatabaseConnection)
+        logging.info("Server was running")
+
         yield
         await database.close()
+        logging.info("Server was closed")
 
     def _handle_request_exception(self, _: Request, exc: RequestValidationError) -> None:
         return JSONResponse(

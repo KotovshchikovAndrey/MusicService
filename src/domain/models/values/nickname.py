@@ -9,7 +9,7 @@ class Nickname(BaseValue[str]):
 
     def validate(self) -> None:
         if not self.value:
-            raise ValueError("Nickname should not be an empty string")
+            raise ValueError("Nickname cannot be an empty string")
 
         if len(self.value) > self._max_length:
-            raise ValueError(f"Too long nickname '{self.value}'")
+            raise ValueError("Too long nickname")

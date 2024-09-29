@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from adapters.driven.sql.repositories.album import AlbumSqlRepository
+from adapters.driven.sql.repositories.album import AlbumSQLRepository
 from domain.models.entities.album import Album
 
 
-class TestAlbumSqlRepository:
+class TestAlbumSQLRepository:
     async def test_get_by_id(self, session: AsyncSession, album_mock: Album) -> None:
-        repository = AlbumSqlRepository(session=session)
+        repository = AlbumSQLRepository(session=session)
         album = await repository.get_by_id(album_mock.id)
 
         assert album is not None

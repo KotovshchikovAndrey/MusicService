@@ -1,5 +1,5 @@
 from asyncio import current_task
-from typing import Self, Type
+from typing import Self
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -10,13 +10,15 @@ from sqlalchemy.ext.asyncio import (
 )
 
 
-class SqlDatabaseConnection:
+class SQLDatabaseConnection:
     _instance: Self | None = None
 
     _engine: AsyncEngine
     _session_factory: async_sessionmaker[AsyncSession]
 
-    def __new__(cls: Type["SqlDatabaseConnection"], *args, **kwargs) -> Self:
+    def __new__(
+        cls: type["SQLDatabaseConnection"], *args, **kwargs
+    ) -> "SQLDatabaseConnection":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 

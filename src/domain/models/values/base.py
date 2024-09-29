@@ -20,10 +20,10 @@ class Url(BaseValue[str]):
 
     def validate(self) -> None:
         if len(self.value) > self._max_length:
-            raise ValueError(f"Too long url {self.value}")
+            raise ValueError("Too long url")
 
         if not re.fullmatch(self.get_pattern(), self.value):
-            raise ValueError(f"Invalid url '{self.value}'")
+            raise ValueError("Invalid url format")
 
     @abstractmethod
     def get_pattern(self) -> str: ...
