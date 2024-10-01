@@ -8,6 +8,8 @@ class Email(BaseValue[str]):
     _pattern: str = r"[A-Z-a-z_\d]+@(mail\.ru|gmail\.com)"
 
     def validate(self) -> None:
+        object.__setattr__(self, "value", self.value.strip())
+
         if len(self.value) > self._max_length:
             raise ValueError("Too long email")
 

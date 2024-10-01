@@ -1,4 +1,4 @@
-from domain.exceptions.track import TrackNotFound
+from domain.errors.track import TrackNotFoundError
 from domain.ports.driven.blob_storage import BlobStorage
 from domain.ports.driven.database.unit_of_work import UnitOfWork
 from domain.ports.driving.track_listening import (
@@ -27,7 +27,7 @@ class ListenTrackUseCaseImpl(ListenTrackUseCase):
         async with self._uow as uow:
             track = await uow.tracks.get_by_id(data.track_id)
             if track is None:
-                raise TrackNotFound()
+                raise TrackNotFoundError()
 
         track_size = await self._blob_storage.get_byte_size(track.audio_url.value)
         start_byte, end_byte = data.start_byte, data.end_byte

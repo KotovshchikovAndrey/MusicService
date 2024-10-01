@@ -11,8 +11,8 @@ class TestCoverUrl:
             "/",
             "/cover.mp4",
             "/cover.",
-            f"/cover{"A" * 9_999}.jpg",
             "/cover.jpgA",
+            "/cover.jpg".rjust(CoverUrl._max_length + 1, "a"),
         ),
     )
     async def test_invalid_cover_url(self, value: str) -> None:

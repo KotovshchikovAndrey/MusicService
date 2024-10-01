@@ -30,12 +30,12 @@ class TestTrack:
         title: str,
         duration: int,
         audio_url: str,
-        album_mock: Album,
+        mock_album: Album,
     ) -> None:
         new_track = (
             TrackBuilder()
             .set_title(title=title)
-            .set_album(album_id=album_mock.id)
+            .set_album(album_id=mock_album.id)
             .set_audio(audio_url=audio_url)
             .set_duration(duration=duration)
             .build()
@@ -45,4 +45,4 @@ class TestTrack:
         assert new_track.title.value == title
         assert new_track.duration.value == duration
         assert new_track.audio_url.value == audio_url
-        assert new_track.album_id == album_mock.id
+        assert new_track.album_id == mock_album.id

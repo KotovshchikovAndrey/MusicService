@@ -1,5 +1,5 @@
-from domain.exceptions.otp_code import InvalidOTPCode
-from domain.exceptions.user import UserNotFound
+from domain.errors.otp_code import InvalidOTPCodeError
+from domain.errors.user import UserNotFoundError
 from domain.models.entities.otp_code import OTPCodePurpose
 from domain.ports.driven.database.unit_of_work import UnitOfWork
 from domain.ports.driving.user_verification import (
@@ -29,7 +29,7 @@ class VerifyUserUseCaseImpl(JwtEncoderMixin, VerifyUserUseCase):
         async with self._uow as uow:
             user = await uow.users.get_by_email(data.email)
             if user is None:
-                raise UserNotFound()
+                raise UserNotFoundError()
 
             requested_otp_code = await uow.otp_codes.get_by_owner_and_purpose(
                 owner_id=user.id,
@@ -37,7 +37,7 @@ class VerifyUserUseCaseImpl(JwtEncoderMixin, VerifyUserUseCase):
             )
 
             if requested_otp_code is None:
-                raise InvalidOTPCode()
+                raise InvalidOTPCodeError()
 
             requested_otp_code.check(data.otp_code)
             await uow.otp_codes.remove_by_id(requested_otp_code.id)

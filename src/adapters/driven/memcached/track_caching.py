@@ -28,7 +28,7 @@ class TrackMemcachedCaching(TrackRepository):
     async def save_all(self, tracks: Iterable[Track]) -> None:
         raise NotImplementedError
 
-    async def set_artists(self, track_id: UUID, artist_ids: Iterable[UUID]) -> None:
+    async def specify_artists(self, track_id: UUID, artist_ids: Iterable[UUID]) -> None:
         raise NotImplementedError
 
     async def check_user_is_listener(self, track_id: UUID, user_id: UUID) -> bool:

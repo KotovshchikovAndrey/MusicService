@@ -91,7 +91,7 @@ class TrackSQLRepository(TrackRepository):
 
         await self._session.execute(stmt)
 
-    async def set_artists(self, track_id: UUID, artist_ids: Iterable[UUID]) -> None:
+    async def specify_artists(self, track_id: UUID, artist_ids: Iterable[UUID]) -> None:
         values_list = []
         for artist_id in artist_ids:
             values = dict(track_id=track_id, artist_id=artist_id)

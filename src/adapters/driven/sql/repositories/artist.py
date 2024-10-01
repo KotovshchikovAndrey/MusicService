@@ -1,7 +1,7 @@
 from typing import Iterable
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import exists, select, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
@@ -54,3 +54,8 @@ class ArtistSQLRepository(ArtistRepository):
         )
 
         await self._session.execute(stmt)
+
+    async def exists_all(self, artist_ids: Iterable[UUID]) -> bool:
+        stmt = select(func.count(ArtistModel.id)).where(ArtistModel.id.in_(artist_ids))
+        model_count = bool(await self._session.scalar(stmt))
+        return len(artist_ids) == model_count

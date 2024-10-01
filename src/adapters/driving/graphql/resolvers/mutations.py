@@ -5,7 +5,7 @@ from strawberry.exceptions import StrawberryGraphQLError
 from adapters.driving.graphql.mappers.base import map_to_jwt_pair_schema
 from adapters.driving.graphql.schemas.base import JwtPairSchema
 from config.ioc_container import container
-from domain.exceptions.token import InvalidRefreshToken
+from domain.errors.token import InvalidRefreshTokenError
 from domain.models.entities.token import TokenTTL
 from domain.ports.driving.jwt_pair_refreshing import (
     RefreshJwtPairDTO,
@@ -58,7 +58,7 @@ class Mutation:
         request: Request = info.context["request"]
         refresh_token = request.cookies.get("refresh_token")
         if refresh_token is None:
-            raise InvalidRefreshToken()
+            raise InvalidRefreshTokenError()
 
         usecase = container.resolve(RefreshJwtPairUseCase)
         jwt_pair = await usecase.execute(RefreshJwtPairDTO(refresh_token=refresh_token))

@@ -2,12 +2,12 @@ from uuid import UUID
 
 import jwt
 
-from domain.exceptions.token import (
-    ExpiredRefreshToken,
-    InvalidRefreshToken,
-    RevokedRefreshToken,
+from domain.errors.token import (
+    ExpiredRefreshTokenError,
+    InvalidRefreshTokenError,
+    RevokedRefreshTokenError,
 )
-from domain.exceptions.user import UserNotFound
+from domain.errors.user import UserNotFoundError
 from domain.models.entities.token import TokenType
 from domain.ports.driven.database.unit_of_work import UnitOfWork
 from domain.ports.driving.jwt_pair_refreshing import (
@@ -40,15 +40,15 @@ class RefreshJwtPairUseCaseImpl(JwtEncoderMixin, RefreshJwtPairUseCase):
         async with self._uow as uow:
             token_in_db = await uow.tokens.get_by_id(token_id)
             if token_in_db is None:
-                raise ExpiredRefreshToken()
+                raise ExpiredRefreshTokenError()
 
             if token_in_db.is_revoked:
                 await uow.tokens.revoke_by_owner_id(token_in_db.owner_id)
-                raise RevokedRefreshToken()
+                raise RevokedRefreshTokenError()
 
             user = await uow.users.get_by_id(token_in_db.owner_id)
             if user is None:
-                raise UserNotFound()
+                raise InvalidRefreshTokenError()
 
             await uow.tokens.revoke_by_owner_id_and_device_id(
                 owner_id=token_in_db.owner_id,
@@ -69,12 +69,12 @@ class RefreshJwtPairUseCaseImpl(JwtEncoderMixin, RefreshJwtPairUseCase):
             )
 
         except jwt.ExpiredSignatureError:
-            raise ExpiredRefreshToken()
+            raise ExpiredRefreshTokenError()
 
         except jwt.InvalidTokenError:
-            raise InvalidRefreshToken()
+            raise InvalidRefreshTokenError()
 
         if payload.get("type") != TokenType.REFRESH_TOKEN:
-            raise InvalidRefreshToken()
+            raise InvalidRefreshTokenError()
 
         return payload

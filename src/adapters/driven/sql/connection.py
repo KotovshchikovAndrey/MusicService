@@ -1,5 +1,6 @@
 from asyncio import current_task
-from typing import Self
+import asyncio
+from typing import Iterable, Self
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -33,7 +34,7 @@ class SQLDatabaseConnection:
             expire_on_commit=False,
         )
 
-    def get_scoped_session(self) -> async_scoped_session[AsyncSession]:
+    def get_session(self) -> async_scoped_session[AsyncSession]:
         session = async_scoped_session(
             session_factory=self._session_factory,
             scopefunc=current_task,

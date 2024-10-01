@@ -1,7 +1,7 @@
 import jwt
 
-from domain.exceptions.token import ExpiredAccessToken, InvalidAccessToken
-from domain.exceptions.user import UserNotFound
+from domain.errors.token import ExpiredAccessTokenError, InvalidAccessTokenError
+from domain.errors.user import AuthenticationError
 from domain.models.entities.token import BaseToken, TokenType
 from domain.models.entities.user import AuthenticatedUser
 from domain.ports.driven.database.unit_of_work import UnitOfWork
@@ -25,7 +25,7 @@ class AuthenticateUseUseCaseImpl(AuthenticateUserUseCase):
         async with self._uow as uow:
             user = await uow.users.get_by_id(token.owner_id)
             if user is None:
-                raise UserNotFound()
+                raise AuthenticationError()
 
         return AuthenticatedUser(
             id=user.id,
@@ -43,12 +43,12 @@ class AuthenticateUseUseCaseImpl(AuthenticateUserUseCase):
             )
 
         except jwt.ExpiredSignatureError:
-            raise ExpiredAccessToken()
+            raise ExpiredAccessTokenError()
 
         except jwt.InvalidTokenError:
-            raise InvalidAccessToken()
+            raise InvalidAccessTokenError()
 
         if payload.get("type") != TokenType.ACCESS_TOKEN:
-            raise InvalidAccessToken()
+            raise InvalidAccessTokenError()
 
         return payload

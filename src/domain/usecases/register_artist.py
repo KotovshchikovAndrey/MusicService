@@ -32,7 +32,7 @@ class RegisterArtistUseCaseImpl(FileManagerMixin, RegisterArtistUseCase):
             if artist is not None:
                 return artist.id
 
-        avatar_url = await self._transfer_file_to_blob_storage(data.avatar_download_url)
+        avatar_url = await self._transfer_file_to_blob_storage(url=data.avatar_url)
         artist = (
             ArtistBuilder()
             .set_id(user_id=data.user_id)

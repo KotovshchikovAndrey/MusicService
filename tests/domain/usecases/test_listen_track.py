@@ -1,14 +1,12 @@
 from io import BytesIO
 from typing import AsyncGenerator
-from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
 
-from domain.exceptions.track import TrackNotFound
+from domain.errors.track import TrackNotFoundError
 from domain.models.entities.track import Track
 from domain.ports.driven.blob_storage import BlobStorage
-from domain.ports.driven.database.track_repository import TrackRepository
 from domain.ports.driven.database.unit_of_work import UnitOfWork
 from domain.ports.driving.track_listening import ListenTrackDTO
 from domain.usecases.listen_track import ListenTrackUseCaseImpl
@@ -16,11 +14,12 @@ from domain.usecases.listen_track import ListenTrackUseCaseImpl
 
 class TestListenTrackUseCase:
     @pytest.mark.parametrize(
-        "start_byte, end_byte, chunk_size, content_length,  content_range",
+        "start_byte, end_byte, chunk_size, content_length, content_range",
         (
             (1, 4, 2, "4", "bytes 1-4/5"),
             (1, None, 2, "4", "bytes 1-4/5"),
             (2, 10, 2, "3", "bytes 2-4/5"),
+            (2, 4, 1, "3", "bytes 2-4/5"),
         ),
     )
     async def test_play_track_successfully(
@@ -30,10 +29,10 @@ class TestListenTrackUseCase:
         chunk_size: int,
         content_length: str,
         content_range: str,
-        track_mock: Track,
-        uow_mock: UnitOfWork,
-        blob_storage_mock: BlobStorage,
-        audio_mock: BytesIO,
+        mock_track: Track,
+        mock_uow: UnitOfWork,
+        mock_audio: BytesIO,
+        mock_blob_storage: BlobStorage,
     ) -> None:
         async def read(
             blob_url: str,
@@ -42,20 +41,21 @@ class TestListenTrackUseCase:
             end_byte: int | None = None,
         ) -> AsyncGenerator[bytes, None]:
             for offset in range(start_byte, end_byte + 1, chunk_size):
-                audio_mock.seek(offset)
-                yield audio_mock.read(chunk_size)
+                mock_audio.seek(offset)
+                yield mock_audio.read(chunk_size)
 
-        blob_storage_mock.read = read
-        blob_storage_mock.get_byte_size = AsyncMock(return_value=audio_mock.size)
+        mock_blob_storage.read = read
+        mock_blob_storage.get_byte_size.return_value = mock_audio.size
+        mock_uow.tracks.get_by_id.return_value = mock_track
 
         usecase = ListenTrackUseCaseImpl(
-            uow=uow_mock,
-            blob_storage=blob_storage_mock,
+            uow=mock_uow,
+            blob_storage=mock_blob_storage,
             chunk_size=chunk_size,
         )
 
         data = ListenTrackDTO(
-            track_id=track_mock.id,
+            track_id=mock_track.id,
             start_byte=start_byte,
             end_byte=end_byte,
         )
@@ -72,17 +72,16 @@ class TestListenTrackUseCase:
 
     async def test_track_not_found(
         self,
-        uow_mock: UnitOfWork,
-        blob_storage_mock: BlobStorage,
-        track_repository_mock: TrackRepository,
+        mock_uow: UnitOfWork,
+        mock_blob_storage: BlobStorage,
     ) -> None:
         usecase = ListenTrackUseCaseImpl(
-            uow=uow_mock,
-            blob_storage=blob_storage_mock,
+            uow=mock_uow,
+            blob_storage=mock_blob_storage,
             chunk_size=1024,
         )
 
-        track_repository_mock.get_by_id.return_value = None
-        with pytest.raises(TrackNotFound):
+        mock_uow.tracks.get_by_id.return_value = None
+        with pytest.raises(TrackNotFoundError):
             data = ListenTrackDTO(track_id=uuid4())
             await usecase.execute(data=data)

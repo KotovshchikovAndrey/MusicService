@@ -1,4 +1,4 @@
-from domain.exceptions.artist import ArtistNotFound
+from domain.errors.artist import ArtistNotFoundError
 from domain.models.entities.artist import Artist
 from domain.ports.driven.database.unit_of_work import UnitOfWork
 from domain.ports.driving.artist_updating import UpdateArtistDTO, UpdateArtistUseCase
@@ -14,7 +14,7 @@ class UpdateArtistUseCaseImpl(UpdateArtistUseCase):
         async with self._uow as uow:
             artist = await uow.artists.get_by_id(data.artist_id)
             if artist is None:
-                raise ArtistNotFound()
+                raise ArtistNotFoundError()
 
             if data.nickname is not None:
                 artist.edit_nickname(data.nickname)

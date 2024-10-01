@@ -1,20 +1,20 @@
-from typing import Annotated
+from typing import Annotated, Self
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, HttpUrl, AfterValidator
 
 from domain.ports.driving.base import BaseDTO, BaseUseCase
 
 
 class AlbumMetaData(BaseDTO):
     title: str
-    cover_download_url: str
+    cover_url: Annotated[HttpUrl, AfterValidator(func=lambda url: str(url))]
 
 
 class TrackMetaData(BaseDTO):
     title: str
     duration: int
-    audio_download_url: str
+    audio_url: Annotated[HttpUrl, AfterValidator(func=lambda url: str(url))]
     artist_ids: Annotated[set[UUID], Field(min_length=1, max_length=15)]
 
 

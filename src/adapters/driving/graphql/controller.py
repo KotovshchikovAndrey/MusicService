@@ -1,9 +1,10 @@
 from fastapi import Request
+from pydantic import ValidationError
 from strawberry.fastapi import GraphQLRouter
 from strawberry.http import GraphQLHTTPResponse
 from strawberry.types import ExecutionResult
 
-from domain.exceptions.base import BaseDomainException
+from domain.errors.base import DomainError
 
 
 class GraphQLController(GraphQLRouter):
@@ -15,8 +16,22 @@ class GraphQLController(GraphQLRouter):
             return data
 
         exc = result.errors[0].original_error
-        if isinstance(exc, BaseDomainException):
-            error = {"code": exc.exc_code, "detail": exc.detail}
+        if isinstance(exc, DomainError):
+            error = {"error": exc.error, "message": exc.message}
+            data["errors"] = [error]
+            return data
+
+        if isinstance(exc, ValueError):
+            error = {
+                "error": ValueError.__name__,
+                "message": "invalid request data",
+                "detail": (
+                    exc.errors(include_url=False, include_context=False)
+                    if isinstance(exc, ValidationError)
+                    else str(exc)
+                ),
+            }
+
             data["errors"] = [error]
             return data
 

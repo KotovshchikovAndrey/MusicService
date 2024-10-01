@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+import pytest
+
 from domain.models.entities.artist import Artist
 from domain.ports.driven.blob_storage import BlobStorage
 from domain.ports.driven.database.unit_of_work import UnitOfWork
@@ -9,23 +11,28 @@ from domain.usecases.register_artist import RegisterArtistUseCaseImpl
 
 
 class TestRegisterArtistUseCase:
+    @pytest.mark.parametrize(
+        "data",
+        (
+            RegisterArtistDTO(
+                user_id=uuid4(),
+                nickname="Andrew",
+                avatar_url="https://example.com/avatar.png",
+            ),
+        ),
+    )
     async def test_execute_successfully(
         self,
-        uow_mock: UnitOfWork,
-        file_downloader_mock: FileDownloader,
-        blob_storage_mock: BlobStorage,
+        data: RegisterArtistDTO,
+        mock_uow: UnitOfWork,
+        mock_file_downloader: FileDownloader,
+        mock_blob_storage: BlobStorage,
     ) -> None:
-        data = RegisterArtistDTO(
-            user_id=uuid4(),
-            nickname="Andrew",
-            avatar_download_url="/avatar.png",
-        )
-
-        uow_mock.artists.get_by_id.return_value = None
+        mock_uow.artists.get_by_id.return_value = None
         usecase = RegisterArtistUseCaseImpl(
-            uow=uow_mock,
-            file_downloader=file_downloader_mock,
-            blob_storage=blob_storage_mock,
+            uow=mock_uow,
+            file_downloader=mock_file_downloader,
+            blob_storage=mock_blob_storage,
         )
 
         artist_id = await usecase.execute(data)
@@ -33,22 +40,23 @@ class TestRegisterArtistUseCase:
 
     async def test_execute_when_artist_exists(
         self,
-        artist_mock: Artist,
-        uow_mock: UnitOfWork,
-        file_downloader_mock: FileDownloader,
-        blob_storage_mock: BlobStorage,
+        mock_artist: Artist,
+        mock_uow: UnitOfWork,
+        mock_file_downloader: FileDownloader,
+        mock_blob_storage: BlobStorage,
     ) -> None:
+        mock_uow.artists.get_by_id.return_value = mock_artist
         data = RegisterArtistDTO(
-            user_id=artist_mock.id,
+            user_id=mock_artist.id,
             nickname="Andrew",
-            avatar_download_url="/avatar.png",
+            avatar_url="https://example.com/avatar.png",
         )
 
         usecase = RegisterArtistUseCaseImpl(
-            uow=uow_mock,
-            file_downloader=file_downloader_mock,
-            blob_storage=blob_storage_mock,
+            uow=mock_uow,
+            file_downloader=mock_file_downloader,
+            blob_storage=mock_blob_storage,
         )
 
         artist_id = await usecase.execute(data)
-        assert artist_id == data.user_id
+        assert artist_id == mock_artist.id

@@ -4,7 +4,7 @@ from fastapi import Request
 from strawberry import BasePermission, Info
 
 from config.ioc_container import container
-from domain.exceptions.base import Unauthorized
+from domain.errors.user import AuthenticationError
 from domain.ports.driving.user_authentication import (
     AuthenticateUserDTO,
     AuthenticateUserUseCase,
@@ -31,4 +31,4 @@ class IsAuthenticated(BasePermission):
         return True
 
     def on_unauthorized(self) -> None:
-        raise Unauthorized()
+        raise AuthenticationError()

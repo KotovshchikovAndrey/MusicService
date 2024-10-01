@@ -18,7 +18,7 @@ class SQLUnitOfWork(UnitOfWork):
         self._database = database
 
     async def __aenter__(self) -> Self:
-        self._session = self._database.get_scoped_session()
+        self._session = self._database.get_session()
         self.tracks = TrackSQLRepository(session=self._session)
         self.playlists = PlaylistSQLRepository(session=self._session)
         self.albums = AlbumSQLRepository(session=self._session)

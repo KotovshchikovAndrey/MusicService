@@ -1,7 +1,7 @@
 import asyncio
 from uuid import UUID
 
-from domain.exceptions.album import InvalidAlbumInput
+from domain.errors.album import InvalidAlbumError
 from domain.models.builders.album import AlbumBuilder
 from domain.models.builders.track import TrackBuilder
 from domain.models.entities.album import Album
@@ -51,7 +51,7 @@ class UploadAlbumUseCaseImpl(FileManagerMixin, UploadAlbumUseCase):
             await uow.albums.save(album)
             await uow.tracks.save_all(tracks)
             for track_id, artist_ids in track_artists:
-                await uow.tracks.set_artists(track_id=track_id, artist_ids=artist_ids)
+                await uow.tracks.specify_artists(track_id=track_id, artist_ids=artist_ids)
 
             await uow.commit()
 
@@ -59,14 +59,14 @@ class UploadAlbumUseCaseImpl(FileManagerMixin, UploadAlbumUseCase):
 
     async def _check_all_artists_exists(self, artist_ids: set[UUID]) -> None:
         async with self._uow as uow:
-            artists = await uow.artists.filter_by_ids(artist_ids)
-            if len(artist_ids) != len(artists):
-                raise InvalidAlbumInput(
-                    detail="One or more of the 'artist_ids' not found"
+            is_exists = await uow.artists.exists_all(artist_ids)
+            if not is_exists:
+                raise InvalidAlbumError(
+                    message="One or more of the 'artist_ids' not found"
                 )
 
     async def _prepare_album_to_save(self, data: AlbumMetaData) -> Album:
-        cover_url = await self._transfer_file_to_blob_storage(data.cover_download_url)
+        cover_url = await self._transfer_file_to_blob_storage(url=data.cover_url)
         album = (
             AlbumBuilder()
             .set_title(title=data.title)
@@ -89,7 +89,7 @@ class UploadAlbumUseCaseImpl(FileManagerMixin, UploadAlbumUseCase):
         return [task.result() for task in tasks]
 
     async def _prepare_track_to_save(self, album: Album, data: TrackMetaData) -> Track:
-        audio_url = await self._transfer_file_to_blob_storage(data.audio_download_url)
+        audio_url = await self._transfer_file_to_blob_storage(url=data.audio_url)
         track = (
             TrackBuilder()
             .set_album(album_id=album.id)

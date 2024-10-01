@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import UUID
 
-from domain.exceptions.otp_code import ExpiredOTPCode, InvalidOTPCode
+from domain.errors.otp_code import ExpiredOTPCodeError, InvalidOTPCodeError
 from domain.models.entities.base import BaseEntity
 
 
@@ -21,10 +21,10 @@ class OTPCode(BaseEntity):
 
     def check(self, code: int) -> None:
         if self.code != code:
-            raise InvalidOTPCode()
+            raise InvalidOTPCodeError()
 
         if self.is_expired:
-            raise ExpiredOTPCode()
+            raise ExpiredOTPCodeError()
 
     @property
     def is_expired(self) -> bool:
