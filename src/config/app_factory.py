@@ -42,6 +42,7 @@ class FastApiAppFactory(ASGIAppFactory):
         logging.info("Server was running")
 
         yield
+
         await database.close()
         logging.info("Server was closed")
 

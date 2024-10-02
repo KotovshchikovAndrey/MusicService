@@ -7,12 +7,12 @@ from domain.ports.driving.base import BaseDTO, Pagination
 from domain.usecases.base import BaseUseCase
 
 
-class GetArtistListDTO(BaseDTO):
+class GetArtistsDTO(BaseDTO):
     page: Annotated[int, Field(default=1, gt=0)]
 
 
-class PaginatedArtistList(Pagination):
+class PaginatedArtists(Pagination):
     artists: Annotated[list[Artist], Field(default_factory=list)]
 
 
-class GetArtistListUseCase(BaseUseCase[GetArtistListDTO, PaginatedArtistList]): ...
+class GetArtistsUseCase(BaseUseCase[GetArtistsDTO, PaginatedArtists]): ...

@@ -12,9 +12,9 @@ from domain.ports.driven.database.unit_of_work import UnitOfWork
 from domain.ports.driven.file_downloader import FileDownloader
 from domain.ports.driven.search_engine import SearchEngine
 from domain.ports.driven.smtp_client import SmtpClient
-from domain.ports.driving.album_list_getting import GetAlbumListUseCase
+from domain.ports.driving.albums_getting import GetAlbumsUseCase
 from domain.ports.driving.album_uploading import UploadAlbumUseCase
-from domain.ports.driving.artist_list_getting import GetArtistListUseCase
+from domain.ports.driving.artists_getting import GetArtistsUseCase
 from domain.ports.driving.artist_registration import RegisterArtistUseCase
 from domain.ports.driving.chart_getting import GetChartUseCase
 from domain.ports.driving.jwt_pair_refreshing import RefreshJwtPairUseCase
@@ -23,8 +23,8 @@ from domain.ports.driving.track_listening import ListenTrackUseCase
 from domain.ports.driving.user_authentication import AuthenticateUserUseCase
 from domain.ports.driving.user_verification import VerifyUserUseCase
 from domain.usecases.authenticate_user import AuthenticateUseUseCaseImpl
-from domain.usecases.get_album_list import GetAlbumListUseCaseImpl
-from domain.usecases.get_artist_list import GetArtistListUseCaseImpl
+from domain.usecases.get_albums import GetAlbumsUseCaseImpl
+from domain.usecases.get_artists import GetArtistsUseCaseImpl
 from domain.usecases.get_chart import GetChartUseCaseImpl
 from domain.usecases.listen_track import ListenTrackUseCaseImpl
 from domain.usecases.refresh_jwt_pair import RefreshJwtPairUseCaseImpl
@@ -119,11 +119,11 @@ class IoCContainer:
     def _prepare_usecases(self) -> None:
         self._container.register(GetChartUseCase, GetChartUseCaseImpl)
 
-        self._container.register(GetAlbumListUseCase, GetAlbumListUseCaseImpl)
+        self._container.register(GetAlbumsUseCase, GetAlbumsUseCaseImpl)
 
         self._container.register(
-            GetArtistListUseCase,
-            GetArtistListUseCaseImpl,
+            GetArtistsUseCase,
+            GetArtistsUseCaseImpl,
             limit=20,
         )
 

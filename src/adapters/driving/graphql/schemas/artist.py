@@ -14,6 +14,6 @@ class ArtistSchema(BaseArtistSchema):
     avatar_url: str
 
 
-@strawberry.type(name="PaginatedArtistList")
-class PaginatedArtistListSchema(PaginationSchema):
+@strawberry.type(name="PaginatedArtists")
+class PaginatedArtistsSchema(PaginationSchema):
     artists: list[ArtistSchema]
